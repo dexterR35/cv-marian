@@ -1,0 +1,748 @@
+/* ============================================================
+   Big Bass Halloween 2 — offer banner
+   Everything is positioned in the background image's own
+   2000 x 1116 grid: calc(N * var(--u)) == N image pixels.
+   ============================================================ */
+
+:root {
+  --ink: #1d0b2c;          /* logo outline / extrusion */
+  --ink-2: #2e1244;
+  --cream-1: #fffaf2;
+  --cream-2: #f6dccb;
+  --cream-3: #e3b3a0;
+  --gold-1: #fff6b8;
+  --gold-2: #ffd23a;
+  --gold-3: #ff9a0a;
+  --gold-4: #e45c00;
+  --water-y: 822;          /* water line in image px */
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #07040d;
+  overflow-x: hidden;
+  font-family: "Inter", Arial, sans-serif;
+}
+
+.banner {
+  --u: calc(100cqw / 2000);
+  container-type: inline-size;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2000 / 1116;
+  background: url("assets/bg.webp") center / 100% 100% no-repeat;
+  overflow: hidden;
+  isolation: isolate;
+}
+.banner > * { position: absolute; }
+
+/* ---------- 3D logo-style text ----------------------------------
+   The element itself paints outline + extrusion (dark),
+   ::after paints the textured face on top.                       */
+.t3d {
+  position: relative;
+  display: inline-block;
+  font-family: "Inter", "Arial Black", sans-serif;
+  font-weight: 900;
+  line-height: .95;
+  letter-spacing: -.025em;
+  color: var(--ink);
+  -webkit-text-stroke: .13em var(--ink);
+  paint-order: stroke fill;
+  text-shadow:
+    .012em .02em 0 var(--ink),  .024em .04em 0 var(--ink),
+    .036em .06em 0 var(--ink),  .048em .08em 0 var(--ink-2),
+    .06em .10em 0 var(--ink-2), .07em .12em 0 #12061c,
+    .08em .16em .12em rgba(0,0,0,.65);
+  white-space: nowrap;
+}
+.t3d::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+  color: transparent;
+  -webkit-background-clip: text;
+          background-clip: text;
+}
+
+/* cracked cream face — like "BIG BASS" */
+.cream::after {
+  background-image:
+    /* crack veins */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='turbulence' baseFrequency='.018' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .2 0 0 0 0 .22 -14 0 0 0 1.25'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23c)'/%3E%3C/svg%3E"),
+    /* stone mottling */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.03' numOctaves='3' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 .78 0 0 0 0 .5 0 0 0 0 .45 -2.4 0 0 0 1.25'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    linear-gradient(180deg, var(--cream-1) 0%, var(--cream-1) 30%, var(--cream-2) 62%, var(--cream-3) 100%);
+  background-size: .9em .9em, 1.4em 1.4em, 100% 100%;
+}
+
+/* molten gold face — like "HALLOWEEN 2" */
+.gold::after {
+  background-image:
+    linear-gradient(180deg, rgba(255,255,255,.55) 0 18%, transparent 30%),
+    linear-gradient(180deg, var(--gold-1) 0%, var(--gold-2) 38%, var(--gold-3) 68%, var(--gold-4) 100%);
+}
+.gold {
+  text-shadow:
+    .012em .02em 0 var(--ink),  .024em .04em 0 var(--ink),
+    .036em .06em 0 var(--ink),  .048em .08em 0 var(--ink-2),
+    .06em .10em 0 var(--ink-2), .07em .12em 0 #12061c,
+    .08em .16em .12em rgba(0,0,0,.65),
+    0 0 .45em rgba(255,140,0,.45);
+}
+
+/* ---------- copy above the water ---------- */
+.copy {
+  left: calc(960 * var(--u));
+  width: calc(960 * var(--u));
+  top: calc(160 * var(--u));                 /* clear of the header */
+  text-align: center;
+  z-index: 3;
+  animation: drop-in 1s .1s cubic-bezier(.2,.9,.3,1.2) both;
+}
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: calc(22 * var(--u));
+  justify-content: center;
+  font-weight: 800;
+  font-size: calc(30 * var(--u));
+  letter-spacing: .03em;
+  white-space: nowrap;
+  color: var(--gold-2);
+  text-shadow: 0 0 .5em rgba(255,170,0,.55), 0 .08em .1em #000;
+}
+.kicker::before, .kicker::after {
+  content: "";
+  width: calc(110 * var(--u));
+  height: calc(10 * var(--u));
+  border-block: calc(2 * var(--u)) solid #ff8a1c;
+  opacity: .85;
+  filter: drop-shadow(0 0 .3em #ff7a00);
+}
+.headline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: calc(16 * var(--u));
+  font-size: calc(112 * var(--u));
+  transform: rotate(-3deg);
+}
+.headline .t3d + .t3d { margin-top: calc(6 * var(--u)); }
+
+/* ---------- rising offer ---------- */
+.rise, .reflection {
+  left: calc(960 * var(--u));
+  width: calc(940 * var(--u));
+  overflow: hidden;
+}
+.rise {                                     /* bottom edge == water line */
+  top: calc(420 * var(--u));
+  height: calc((var(--water-y) - 420) * var(--u));
+  z-index: 2;
+}
+.rise .rise-inner {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  padding-left: calc(28 * var(--u));
+  animation: rise 1.9s .7s cubic-bezier(.18,.95,.3,1.08) both;
+}
+.bob {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-bottom: calc(6 * var(--u));
+  animation: bob 4.5s 2.6s ease-in-out infinite;
+}
+.spins {
+  display: flex;
+  align-items: flex-start;
+  gap: calc(44 * var(--u));
+  transform: rotate(-3deg);
+}
+.num {
+  font-size: calc(240 * var(--u));
+  line-height: .78;
+  letter-spacing: -.035em;
+}
+.fs {                                   /* stepped up so it clears the plaque */
+  display: flex;
+  flex-direction: column;
+  translate: 0 calc(-84 * var(--u));
+  font-size: calc(86 * var(--u));
+}
+.fs .t3d + .t3d { margin-top: calc(4 * var(--u)); }
+/* "στο Big Bass Halloween 2": a divider between the headline offer and the 131 FREE SPINS offer */
+.game {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(18 * var(--u));
+  margin: calc(30 * var(--u)) 0 0;
+  font-weight: 800;
+  font-size: calc(32 * var(--u));
+  color: #fff;
+  white-space: nowrap;
+  text-shadow: 0 .06em 0 var(--ink), 0 0 .45em rgba(255,140,30,.75), 0 0 1em rgba(0,0,0,.8);
+}
+.game::before, .game::after {
+  content: "";
+  width: calc(90 * var(--u));
+  height: calc(3 * var(--u));
+  border-radius: 3px;
+  background: linear-gradient(90deg, transparent, var(--gold-3));
+  box-shadow: 0 0 .4em rgba(255,140,0,.7);
+}
+.game::after { scale: -1 1; }
+
+/* mirrored copy under the water */
+.reflection {
+  top: calc(var(--water-y) * var(--u));
+  height: calc(300 * var(--u));
+  z-index: 1;
+  opacity: .32;
+  filter: url(#ripple) blur(1.5px);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, rgba(0,0,0,.35) 40%, transparent 80%);
+          mask-image: linear-gradient(180deg, #000 0%, rgba(0,0,0,.35) 40%, transparent 80%);
+  mix-blend-mode: screen;
+}
+.reflection .rise-inner {
+  position: absolute;
+  inset: 0 0 auto 0;
+  display: flex;
+  padding-left: calc(28 * var(--u));
+  transform-origin: 50% 0;
+  animation: sink 1.9s .7s cubic-bezier(.18,.95,.3,1.08) both;
+}
+.reflection .mirror { transform: scaleY(-1); animation-name: bob-mirror; }
+@keyframes bob-mirror { 50% { translate: 0 calc(8 * var(--u)); } }
+
+/* ---------- water line ---------- */
+.waterline {
+  left: calc(940 * var(--u));
+  width: calc(860 * var(--u));
+  top: calc((var(--water-y) - 40) * var(--u));
+  height: calc(80 * var(--u));
+  z-index: 3;
+  pointer-events: none;
+}
+.waterline i { position: absolute; display: block; }
+.foam {
+  left: 6%; right: 6%;
+  top: 44%; height: 14%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(215,245,255,.75), rgba(120,200,255,.25) 60%, transparent);
+  filter: blur(2px);
+  animation: foam 3s 1.6s ease-in-out infinite alternate both;
+}
+.ring {
+  left: 50%; top: 50%;
+  width: calc(700 * var(--u));
+  height: calc(46 * var(--u));
+  margin: calc(-23 * var(--u)) 0 0 calc(-350 * var(--u));
+  border: calc(3 * var(--u)) solid rgba(190,235,255,.7);
+  border-radius: 50%;
+  opacity: 0;
+  animation: ring 3.6s ease-out infinite;
+}
+.r1 { animation-delay: .8s; }
+.r2 { animation-delay: 2s; }
+.r3 { animation-delay: 3.2s; }
+
+.drop {
+  left: var(--x); top: 50%;
+  width: calc(var(--s, 10) * var(--u));
+  aspect-ratio: 1;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  background: radial-gradient(circle at 35% 30%, #fff, #9fe3ff 45%, rgba(80,170,255,.2) 75%);
+  opacity: 0;
+  animation: splash 1.4s var(--d, .9s) cubic-bezier(.2,.7,.4,1) both;
+}
+.d1 { --x: 18%; --tx: -90;  --ty: -170; --s: 12; }
+.d2 { --x: 28%; --tx: -40;  --ty: -230; --s: 9;  --d: .95s; }
+.d3 { --x: 38%; --tx: -20;  --ty: -150; --s: 14; }
+.d4 { --x: 47%; --tx: 10;   --ty: -260; --s: 8;  --d: 1s; }
+.d5 { --x: 56%; --tx: 30;   --ty: -190; --s: 12; }
+.d6 { --x: 66%; --tx: 60;   --ty: -240; --s: 9;  --d: .95s; }
+.d7 { --x: 76%; --tx: 90;   --ty: -160; --s: 13; }
+.d8 { --x: 84%; --tx: 120;  --ty: -120; --s: 8;  --d: 1.05s; }
+
+/* ---------- foreground thorns ---------- */
+.thorns {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.m-art { display: none; }                /* portrait crop, see the mobile block */
+
+/* ---------- 3D plaque (covers the old sign) ---------- */
+.sign-cover {                          /* hides the baked-in sign before/while the plaque animates */
+  left: calc(1466 * var(--u));
+  top: calc(744 * var(--u));
+  width: calc(474 * var(--u));
+  height: calc(310 * var(--u));
+  z-index: 5;
+  border-radius: calc(40 * var(--u));
+  background: #080a12;
+  filter: blur(calc(12 * var(--u)));
+  pointer-events: none;
+}
+.plaque-wrap {
+  left: calc(1440 * var(--u));
+  top: calc(738 * var(--u));
+  width: calc(520 * var(--u));
+  height: calc(318 * var(--u));
+  z-index: 5;
+  perspective: calc(1400 * var(--u));
+  animation: plaque-in 1s .5s cubic-bezier(.2,.9,.3,1.25) both;
+}
+.plaque {
+  position: relative;
+  height: 100%;
+  padding: calc(24 * var(--u)) calc(30 * var(--u)) calc(46 * var(--u));
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: calc(26 * var(--u));
+  background:
+    radial-gradient(90% 70% at 50% 118%, rgba(255,110,10,.5), transparent 62%),      /* lantern glow from below */
+    radial-gradient(80% 60% at 15% -10%, rgba(160,90,255,.35), transparent 60%),      /* moonlight */
+    linear-gradient(165deg, #33194c 0%, #1d0e2e 50%, #0e0717 100%);
+  border: calc(5 * var(--u)) solid #0a0510;
+  box-shadow:
+    inset 0 calc(3 * var(--u)) 0 rgba(255,220,255,.14),
+    inset 0 0 calc(30 * var(--u)) rgba(0,0,0,.6),
+    0 0 0 calc(3 * var(--u)) #ff8a1c,
+    0 0 calc(34 * var(--u)) rgba(255,110,0,.6),
+    0 0 calc(90 * var(--u)) rgba(140,60,255,.3),
+    /* slab thickness */
+    calc(6 * var(--u)) calc(6 * var(--u)) 0 #170a22,
+    calc(12 * var(--u)) calc(12 * var(--u)) 0 #10071a,
+    calc(18 * var(--u)) calc(18 * var(--u)) 0 #0a0411,
+    calc(26 * var(--u)) calc(34 * var(--u)) calc(40 * var(--u)) rgba(0,0,0,.75);
+  transform: rotateY(-14deg) rotateX(6deg) rotateZ(-2deg);
+  transform-style: preserve-3d;
+  animation: plaque-float 5s 2.6s ease-in-out infinite;
+}
+.plaque::before {                      /* stone texture + cracks */
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='260'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='turbulence' baseFrequency='.012' numOctaves='2' seed='11'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -16 0 0 0 1.3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23c)'/%3E%3C/svg%3E") 0 0 / 100% 100%,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.06' numOctaves='4' seed='9'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1.6 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: .5;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+/* cobwebs + pumpkin on the plaque corners */
+.web {
+  position: absolute;
+  width: calc(130 * var(--u));
+  height: calc(130 * var(--u));
+  pointer-events: none;
+  filter: drop-shadow(0 0 calc(3 * var(--u)) rgba(200,170,255,.5));
+}
+.web-tr { top: calc(-3 * var(--u)); right: calc(-3 * var(--u)); transform: scaleX(-1); }
+.web-bl { bottom: calc(-3 * var(--u)); left: calc(-3 * var(--u)); width: calc(100 * var(--u)); height: calc(100 * var(--u)); transform: scaleY(-1); opacity: .8; }
+.pumpkin {
+  position: absolute;
+  left: calc(-48 * var(--u));
+  top: calc(-58 * var(--u));
+  width: calc(108 * var(--u));
+  height: calc(100 * var(--u));
+  transform: rotate(-12deg);
+  filter: drop-shadow(0 0 calc(18 * var(--u)) rgba(255,120,0,.85)) drop-shadow(0 calc(6 * var(--u)) calc(6 * var(--u)) rgba(0,0,0,.6));
+  animation: pumpkin-wobble 3.4s ease-in-out infinite;
+}
+#pumpkin .pk-face { animation: flicker 2.2s steps(1) infinite; }
+
+.bonus {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  text-align: center;
+}
+.bonus::before {                       /* glowing divider */
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 6%;
+  bottom: 6%;
+  width: calc(3 * var(--u));
+  border-radius: 9px;
+  background: linear-gradient(180deg, transparent, #ff8a1c 30%, #b45cff 70%, transparent);
+  box-shadow: 0 0 calc(10 * var(--u)) rgba(255,120,20,.8);
+}
+.cell { display: flex; flex-direction: column; align-items: center; }
+.amt { font-size: calc(88 * var(--u)); }
+.lbl {
+  margin-top: calc(14 * var(--u));
+  color: #fff3e6;
+  font-weight: 800;
+  font-size: calc(26 * var(--u));
+  line-height: 1.1;
+  text-shadow: 0 .08em .1em #000, 0 0 .5em rgba(180,92,255,.6);
+}
+
+/* pumpkin button with molten drips */
+.cta {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(18 * var(--u));
+  height: calc(72 * var(--u));
+  border-radius: calc(36 * var(--u));
+  background:
+    radial-gradient(60% 120% at 50% -20%, rgba(210,225,255,.45), transparent 60%),
+    linear-gradient(180deg, #5b80ff 0%, #2350ff 48%, #1435c4 100%);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 900;
+  font-size: calc(34 * var(--u));
+  letter-spacing: .01em;
+  text-shadow: 0 calc(2 * var(--u)) 0 rgba(5,15,80,.55);
+  border: calc(3 * var(--u)) solid #0c1c6e;
+  box-shadow:
+    inset 0 calc(-6 * var(--u)) calc(10 * var(--u)) rgba(5,20,110,.5),
+    0 calc(7 * var(--u)) 0 #0d2391,
+    0 calc(12 * var(--u)) calc(20 * var(--u)) rgba(0,0,0,.6),
+    0 0 calc(30 * var(--u)) rgba(60,110,255,.7);
+  transition: transform .15s, filter .15s;
+  animation: cta-pulse 2.4s 3s ease-in-out infinite;
+}
+.cta span, .cta b { position: relative; z-index: 1; }
+.cta b { font-size: 1.3em; line-height: 0; translate: 0 calc(-3 * var(--u)); }
+.cta::before {                         /* molten drips under the button */
+  content: "";
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  top: calc(100% + 2 * var(--u));
+  height: calc(42 * var(--u));
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 34' preserveAspectRatio='none'%3E%3Cg fill='%231a3fd6'%3E%3Crect width='300' height='4'/%3E%3Crect x='24' width='8' height='15' rx='4'/%3E%3Ccircle cx='28' cy='15' r='5.5'/%3E%3Crect x='70' width='6' height='8' rx='3'/%3E%3Ccircle cx='73' cy='8' r='4'/%3E%3Crect x='128' width='9' height='22' rx='4.5'/%3E%3Ccircle cx='132.5' cy='23' r='6'/%3E%3Crect x='190' width='6' height='10' rx='3'/%3E%3Ccircle cx='193' cy='10' r='4.2'/%3E%3Crect x='246' width='8' height='17' rx='4'/%3E%3Ccircle cx='250' cy='17' r='5.5'/%3E%3C/g%3E%3Cg fill='%2399b4ff' opacity='.7'%3E%3Ccircle cx='26.5' cy='13' r='1.6'/%3E%3Ccircle cx='131' cy='21' r='1.8'/%3E%3Ccircle cx='248.5' cy='15' r='1.6'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+  transform-origin: 50% 0;
+  animation: drip 3.5s ease-in-out infinite;
+  pointer-events: none;
+}
+.cta::after {                          /* shine sweep */
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,.55) 50%, transparent 60%) 150% 0 / 300% 100% no-repeat;
+  animation: shine 3.2s 3s ease-in-out infinite;
+}
+.cta:hover { filter: brightness(1.1) saturate(1.1); transform: translateY(calc(-2 * var(--u))); }
+.cta:active { transform: translateY(calc(5 * var(--u))); }
+.cta:focus-visible { outline: calc(4 * var(--u)) solid #b45cff; outline-offset: calc(5 * var(--u)); }
+
+/* ---------- spider ---------- */
+.spider {
+  left: calc(1872 * var(--u));
+  top: calc(560 * var(--u));
+  width: calc(46 * var(--u));
+  height: calc(120 * var(--u));
+  z-index: 6;
+  animation: spider-drop 7s 2s ease-in-out infinite;
+}
+.spider::before {                      /* silk thread */
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: calc(30 * var(--u));
+  width: 1px;
+  background: linear-gradient(180deg, transparent, rgba(230,225,255,.8) 25%);
+}
+.spider svg {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: calc(40 * var(--u));
+  transform-origin: 50% 0;
+  animation: spider-sway 2.3s ease-in-out infinite;
+  filter: drop-shadow(0 0 calc(4 * var(--u)) rgba(255,120,30,.6));
+}
+
+/* ---------- bats ---------- */
+.bats { inset: 0; z-index: 1; pointer-events: none; }
+.bat {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(var(--w, 70) * var(--u));
+  aspect-ratio: 2;
+  fill: #1a0a26;
+  opacity: 0;
+  filter: drop-shadow(0 0 calc(3 * var(--u)) rgba(255,150,60,.9)) drop-shadow(0 0 calc(10 * var(--u)) rgba(180,90,255,.55));
+  animation: fly var(--dur, 14s) var(--delay, 0s) ease-in-out infinite;
+  pointer-events: none;
+}
+.bat .wing {
+  transform-box: view-box;
+  transform-origin: 50px 24px;
+  animation: flap var(--flap, .32s) ease-in-out infinite alternate;
+}
+.b1 { --w: 107; --dur: 13s; --delay: 0s;   --flap: .30s; --x0: 980;  --y0: 70;  --x1: 1300; --y1: 150; --x2: 1650; --y2: 40;  --x3: 2060; --y3: 120; }
+.b2 { --w: 81; --dur: 16s; --delay: 3s;   --flap: .36s; --x0: 2060; --y0: 260; --x1: 1720; --y1: 170; --x2: 1350; --y2: 290; --x3: 940;  --y3: 190; }
+.b3 { --w: 67; --dur: 9s;  --delay: 1s;   --flap: .26s; --x0: 260;  --y0: 120; --x1: 560;  --y1: 30;  --x2: 720;  --y2: 230; --x3: 300;  --y3: 300; }
+.b4 { --w: 55; --dur: 11s; --delay: 4.5s; --flap: .24s; --x0: 760;  --y0: 260; --x1: 430;  --y1: 330; --x2: 250;  --y2: 120; --x3: 620;  --y3: 20;  }
+.b5 { --w: 49; --dur: 11s; --delay: 6s;   --flap: .22s; --x0: 1480; --y0: -60; --x1: 1740; --y1: 90;  --x2: 1900; --y2: 30;  --x3: 2080; --y3: -40; }
+.b7 { --w: 72; --dur: 12s; --delay: 2s;   --flap: .3s;  --x0: 120;  --y0: 380; --x1: 260;  --y1: 250; --x2: 140;  --y2: 150; --x3: -120; --y3: 90;  }
+.b8 { --w: 87; --dur: 15s; --delay: 8s;   --flap: .34s; --x0: 2060; --y0: 430; --x1: 1830; --y1: 330; --x2: 1600; --y2: 380; --x3: 1300; --y3: 260; }
+/* swoops from the moon toward the viewer, in front of everything */
+.banner > .b6 {
+  z-index: 7;
+  --w: 60; --flap: .2s;
+  animation: swoop 10s 4s cubic-bezier(.5,0,.9,.6) infinite;
+}
+
+.fine {
+  left: calc(1440 * var(--u));
+  width: calc(540 * var(--u));
+  top: calc(1068 * var(--u));
+  z-index: 5;
+  text-align: center;
+  color: rgba(255,255,255,.8);
+  font-weight: 600;
+  font-size: calc(17 * var(--u));
+  text-shadow: 0 1px 2px #000;
+}
+
+/* ---------- embers ---------- */
+.embers { inset: 0; z-index: 6; pointer-events: none; }
+.embers i {
+  position: absolute;
+  bottom: -2%;
+  width: calc(6 * var(--u));
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #ffb347;
+  box-shadow: 0 0 calc(10 * var(--u)) calc(3 * var(--u)) rgba(255,120,0,.7);
+  opacity: 0;
+  animation: ember 7s linear infinite;
+}
+.embers i:nth-child(1)  { left: 55%; animation-delay: 0s; }
+.embers i:nth-child(2)  { left: 62%; animation-delay: 1.3s; animation-duration: 8s; }
+.embers i:nth-child(3)  { left: 70%; animation-delay: 2.1s; }
+.embers i:nth-child(4)  { left: 76%; animation-delay: 3.6s; animation-duration: 9s; }
+.embers i:nth-child(5)  { left: 83%; animation-delay: .7s; }
+.embers i:nth-child(6)  { left: 89%; animation-delay: 4.4s; animation-duration: 6s; }
+.embers i:nth-child(7)  { left: 94%; animation-delay: 2.8s; }
+.embers i:nth-child(8)  { left: 66%; animation-delay: 5.2s; animation-duration: 10s; }
+.embers i:nth-child(9)  { left: 58%; animation-delay: 6s; }
+.embers i:nth-child(10) { left: 80%; animation-delay: 5.6s; animation-duration: 8.5s; }
+
+/* ---------- keyframes ---------- */
+@keyframes drop-in   { from { opacity: 0; translate: 0 -30%; } to { opacity: 1; translate: 0 0; } }
+@keyframes rise      { from { transform: translateY(105%); } to { transform: translateY(0); } }
+@keyframes sink      { from { transform: translateY(-105%); } to { transform: translateY(0); } }
+@keyframes bob       { 50% { translate: 0 calc(-8 * var(--u)); } }
+@keyframes foam      { from { opacity: .6; transform: scaleX(.94); } to { opacity: 1; transform: scaleX(1.02); } }
+@keyframes ring {
+  0%   { opacity: 0; transform: scale(.35); }
+  15%  { opacity: .8; }
+  100% { opacity: 0; transform: scale(1.35); }
+}
+@keyframes splash {
+  0%   { opacity: 0; transform: translate(0, 0) scale(.4); }
+  10%  { opacity: 1; }
+  55%  { transform: translate(calc(var(--tx) * .6 * var(--u)), calc(var(--ty) * var(--u))) scale(1); }
+  100% { opacity: 0; transform: translate(calc(var(--tx) * var(--u)), 0) scale(.6); }
+}
+@keyframes plaque-in {
+  from { opacity: 0; transform: translateY(18%) scale(.85); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes plaque-float {
+  50% { transform: rotateY(-10deg) rotateX(3deg) rotateZ(-1deg) translateY(calc(-6 * var(--u))); }
+}
+@keyframes shine     { 0%, 55% { background-position: 150% 0; } 100% { background-position: -50% 0; } }
+@keyframes cta-pulse { 50% { box-shadow: inset 0 calc(-6 * var(--u)) calc(10 * var(--u)) rgba(5,20,110,.5), 0 calc(7 * var(--u)) 0 #0d2391, 0 calc(12 * var(--u)) calc(20 * var(--u)) rgba(0,0,0,.6), 0 0 calc(55 * var(--u)) rgba(80,130,255,.95); } }
+@keyframes drip      { 50% { transform: scaleY(1.25); } }
+@keyframes flicker   { 0%, 100% { opacity: 1; } 37% { opacity: .75; } 41% { opacity: 1; } 68% { opacity: .85; } 72% { opacity: 1; } }
+@keyframes pumpkin-wobble { 50% { transform: rotate(-6deg) translateY(calc(-3 * var(--u))); } }
+@keyframes spider-drop {
+  0%, 100% { height: calc(70 * var(--u)); }
+  40%, 60% { height: calc(175 * var(--u)); }
+}
+@keyframes spider-sway { 0%, 100% { rotate: -6deg; } 50% { rotate: 6deg; } }
+@keyframes flap      { from { transform: scaleY(1); } to { transform: scaleY(-.55); } }
+@keyframes fly {
+  0%   { translate: calc(var(--x0) * var(--u)) calc(var(--y0) * var(--u)); opacity: 0; rotate: -8deg; }
+  8%   { opacity: 1; }
+  33%  { translate: calc(var(--x1) * var(--u)) calc(var(--y1) * var(--u)); rotate: 8deg; }
+  66%  { translate: calc(var(--x2) * var(--u)) calc(var(--y2) * var(--u)); rotate: -6deg; }
+  92%  { opacity: 1; }
+  100% { translate: calc(var(--x3) * var(--u)) calc(var(--y3) * var(--u)); opacity: 0; rotate: 6deg; }
+}
+@keyframes swoop {
+  0%   { translate: calc(560 * var(--u)) calc(190 * var(--u)); scale: .3; opacity: 0; }
+  6%   { opacity: 1; }
+  35%  { translate: calc(820 * var(--u)) calc(90 * var(--u)); scale: .7; rotate: -10deg; }
+  60%  { translate: calc(1000 * var(--u)) calc(160 * var(--u)); scale: 1.6; rotate: 12deg; opacity: 1; }
+  80%, 100% { translate: calc(1150 * var(--u)) calc(-260 * var(--u)); scale: 5; rotate: -15deg; opacity: 0; }
+}
+@keyframes ember {
+  0%   { opacity: 0; transform: translate(0, 0) scale(1); }
+  10%  { opacity: .9; }
+  100% { opacity: 0; transform: translate(calc(-120 * var(--u)), calc(-900 * var(--u))) scale(.3); }
+}
+
+/* ============================================================
+   MOBILE (portrait): the stage becomes a column.
+   --u is re-based on a 1000 px wide crop of the image (fish + logo),
+   so 1 u still == 1 image pixel inside .m-art. Capped at 600 px
+   so a wide phone / small tablet does not blow the type up.
+   ============================================================ */
+@media (max-width: 760px) {
+  .banner {
+    --u: calc(min(100cqw, 600px) / 1000);
+    aspect-ratio: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 68px 0 36px;
+    background:
+      radial-gradient(70% 30% at 50% 0%, rgba(120,70,200,.28), transparent 70%),
+      linear-gradient(180deg, #0b0a1e 0%, #090816 40%, #07040d 100%);
+  }
+  .copy, .m-art, .rise, .waterline, .reflection, .plaque-wrap, .fine { position: relative; inset: auto; }
+
+  /* hidden: they only line up with the desktop stage */
+  .sign-cover { display: none; }
+  .thorns > g { display: none; }         /* keep the <defs>: the reflection uses #ripple */
+
+  /* 1. kicker + headline */
+  .copy { order: 1; width: 100%; padding: 0 12px; }
+  .kicker { font-size: max(12px, calc(34 * var(--u))); gap: 8px; letter-spacing: .02em; }
+  .kicker::before, .kicker::after { width: calc(56 * var(--u)); border-block-width: 2px; }
+  .headline { font-size: calc(120 * var(--u)); margin-top: calc(22 * var(--u)); }
+
+  /* 2. the art, sliding up under the headline so the moon glows behind it */
+  .m-art {
+    order: 2;
+    display: block;
+    width: 100%;
+    height: calc(1116 * var(--u));
+    margin-top: calc(-175 * var(--u));
+    z-index: 0;
+    background: url("assets/bg.webp") no-repeat;
+    background-size: calc(2000 * var(--u)) calc(1116 * var(--u));
+    background-position: min(0px, calc(50cqw - 520 * var(--u))) 0;  /* fish centred, never past the left edge */
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 16%, #000 82%, transparent 100%);
+            mask-image: linear-gradient(180deg, transparent 0%, #000 16%, #000 82%, transparent 100%);
+  }
+
+  /* 3. 131 FREE SPINS rising from the lake under the logo */
+  .rise {
+    order: 3;
+    width: 100%;
+    height: calc(330 * var(--u));
+    margin-top: calc(-165 * var(--u));
+  }
+  .rise .rise-inner, .reflection .rise-inner { justify-content: center; padding-left: 0; }
+  .bob { align-items: center; }
+  .game {
+    margin: 0 0 calc(10 * var(--u));
+    font-size: max(13px, calc(34 * var(--u)));
+  }
+  .fs { translate: 0 calc(-4 * var(--u)); }
+
+  .waterline {
+    order: 4;
+    width: 96%;
+    height: calc(80 * var(--u));
+    margin-block: calc(-40 * var(--u));
+  }
+  .waterline::before {                   /* the lake surface below the water line */
+    content: "";
+    position: absolute;
+    left: -4%;
+    right: -4%;
+    top: 50%;
+    height: calc(420 * var(--u));
+    background:
+      radial-gradient(55% 35% at 50% 0%, rgba(120,200,255,.16), transparent 70%),
+      linear-gradient(180deg, rgba(40,90,150,.16), rgba(20,40,90,.08) 45%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+            mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+    pointer-events: none;
+  }
+  .reflection {
+    order: 5;
+    width: 100%;
+    height: calc(220 * var(--u));
+  }
+
+  /* 4. the plaque, re-scaled to ~87% of the screen width */
+  .plaque-wrap {
+    --u: calc(min(100cqw, 600px) / 600);
+    order: 6;
+    width: calc(520 * var(--u));
+    height: calc(318 * var(--u));
+    margin-top: calc(-90 * var(--u));
+    perspective: calc(1100 * var(--u));
+  }
+  .plaque {
+    transform: rotateX(8deg) rotateZ(-1.5deg);
+    animation-name: plaque-float-m;
+  }
+  .pumpkin { left: calc(-30 * var(--u)); }
+
+  .fine {
+    order: 7;
+    width: min(92%, 440px);
+    margin-top: 40px;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  /* spider drops out of the trees on the left, under the headline */
+  .spider {
+    --u: calc(min(100cqw, 600px) / 600);
+    left: 12px;
+    top: calc(68px + 250 * var(--u));
+  }
+
+  /* bats: new flight paths inside the 1000 u wide column */
+  .b1 { --x0: -120; --y0: 260; --x1: 300; --y1: 170; --x2: 650; --y2: 300; --x3: 1100; --y3: 200; }
+  .b2 { --x0: 1100; --y0: 560; --x1: 760; --y1: 450; --x2: 420; --y2: 600; --x3: -120; --y3: 480; }
+  .b3 { --x0: 60;   --y0: 760; --x1: 240; --y1: 640; --x2: 140; --y2: 540; --x3: -140; --y3: 660; }
+  .b4 { --x0: 920;  --y0: 820; --x1: 760; --y1: 720; --x2: 880; --y2: 620; --x3: 1100; --y3: 680; }
+  .b5 { --x0: 560;  --y0: 120; --x1: 760; --y1: 220; --x2: 920; --y2: 150; --x3: 1100; --y3: 210; }
+  .b7 { --x0: -120; --y0: 980; --x1: 120; --y1: 880; --x2: 40;  --y2: 800; --x3: -140; --y3: 740; }
+  .b8 { --x0: 1100; --y0: 1060; --x1: 930; --y1: 960; --x2: 990; --y2: 870; --x3: 1100; --y3: 800; }
+
+  /* embers across the whole width */
+  .embers i:nth-child(1)  { left: 6%; }
+  .embers i:nth-child(2)  { left: 16%; }
+  .embers i:nth-child(3)  { left: 27%; }
+  .embers i:nth-child(4)  { left: 38%; }
+  .embers i:nth-child(5)  { left: 47%; }
+  .embers i:nth-child(6)  { left: 58%; }
+  .embers i:nth-child(7)  { left: 68%; }
+  .embers i:nth-child(8)  { left: 77%; }
+  .embers i:nth-child(9)  { left: 86%; }
+  .embers i:nth-child(10) { left: 94%; }
+}
+@keyframes plaque-float-m {
+  50% { transform: rotateX(4deg) rotateZ(-.5deg) translateY(calc(-6 * var(--u))); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; animation-delay: 0s !important; }
+  .ring, .drop, .embers, .bats, .b6, .spider { display: none; }
+}
