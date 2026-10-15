@@ -1,0 +1,165 @@
+/* Big Bass: keep the full offer above the outer torn-paper layers. */
+.hero {
+  position: relative;
+  z-index: 2;
+  background: var(--bg-0);
+}
+
+.hero-frame {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+/* A narrow paper lip sits inside the two side edges, clear of the offer. */
+.hero-frame::before {
+  content: "";
+  opacity: .45;
+  position: absolute;
+  inset: 0 -2px -4px -3px;
+  background:
+    url("paper-grain.svg") 0 0 / 180px 180px,
+    radial-gradient(ellipse at 0 60%, #79624b, transparent 30%),
+    linear-gradient(120deg, #a18b68, #c4b08b 38%, #897456);
+  -webkit-mask: url("paper-edge-mask.svg") 0 0 / 100% 100% no-repeat;
+          mask: url("paper-edge-mask.svg") 0 0 / 100% 100% no-repeat;
+  pointer-events: none;
+}
+
+.hero-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  background:
+    url("scuffs.svg") 0 0 / 100% 100% no-repeat,
+    url("paper-grain.svg") 0 0 / 180px 180px;
+  opacity: .65;
+  mix-blend-mode: soft-light;
+  -webkit-mask: url("poster-mask.svg") 0 0 / 100% 100% no-repeat;
+          mask: url("poster-mask.svg") 0 0 / 100% 100% no-repeat;
+  pointer-events: none;
+}
+
+@media (min-width: 761px) {
+  .hero-frame {
+    --poster-height: min(100dvh, calc((100vw - 96px) / var(--ar)));
+    --poster-width: calc(var(--poster-height) * var(--ar));
+    --poster-left: calc((100% - var(--poster-width)) / 2);
+    --poster-top: calc((100dvh - var(--poster-height)) / 2);
+    height: calc(100dvh + 8px);
+    container-type: size;
+    background: var(--bg-0);
+  }
+
+  .poster-backdrop {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(#000 calc(100% - 160px), transparent);
+            mask-image: linear-gradient(#000 calc(100% - 160px), transparent);
+    pointer-events: none;
+  }
+
+  .poster-backdrop::before {
+    content: "";
+    position: absolute;
+    inset: -16px;
+    background: var(--poster-art) center / cover no-repeat;
+    transform: translate3d(var(--parallax-x, 0px), var(--parallax-y, 0px), 0) scale(1.16);
+    filter: blur(3px) brightness(.7);
+    will-change: transform;
+  }
+
+  .poster-backdrop::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: url("paper-grain.svg") 0 0 / 180px 180px;
+    opacity: .4;
+  }
+
+  .poster-shadow {
+    position: absolute;
+    left: var(--poster-left);
+    top: var(--poster-top);
+    width: var(--poster-width);
+    height: var(--poster-height);
+    /* Filter the masked child so the cast shadow follows the torn silhouette. */
+    filter: drop-shadow(2px 14px 20px rgba(0, 0, 0, .65))
+            drop-shadow(0 3px 3px rgba(0, 0, 0, .6));
+    pointer-events: none;
+  }
+
+  .poster-shadow::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: #31241e;
+    -webkit-mask: url("poster-mask.svg") 0 0 / 100% 100% no-repeat;
+            mask: url("poster-mask.svg") 0 0 / 100% 100% no-repeat;
+  }
+
+  .hero-frame > .banner {
+    --sw: var(--poster-width);
+    position: absolute;
+    width: var(--sw);
+    left: var(--poster-left);
+    top: var(--poster-top);
+    z-index: 2;
+    overflow: visible;
+    -webkit-mask: none;
+            mask: none;
+  }
+
+  .hero-frame::before,
+  .hero-frame::after {
+    left: var(--poster-left);
+    top: var(--poster-top);
+    right: auto;
+    width: var(--poster-width);
+  }
+
+  .hero-frame::after {
+    bottom: auto;
+    height: var(--poster-height);
+  }
+
+  .hero-frame::before {
+    top: var(--poster-top);
+    bottom: auto;
+    height: var(--poster-height);
+    z-index: 3;
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .poster-backdrop::before { will-change: auto; }
+}
+
+@media (max-width: 760px) {
+  .poster-backdrop,
+  .poster-shadow {
+    display: none;
+  }
+
+  .hero {
+    background: var(--bg-0);
+  }
+
+  .hero-frame > .banner {
+    -webkit-mask: none;
+            mask: none;
+  }
+
+  .hero-frame::before {
+    display: none;
+  }
+
+  .hero-frame::after {
+    opacity: .55;
+    -webkit-mask: none;
+            mask: none;
+  }
+}

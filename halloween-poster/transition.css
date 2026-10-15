@@ -1,0 +1,28 @@
+/* Shade the scenery into the page while keeping offers above the fade. */
+.hero-frame > .stage::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: clamp(100px, 18dvh, 180px);
+  z-index: 4;
+  background: linear-gradient(180deg,
+    rgba(7, 4, 13, 0), rgba(7, 4, 13, .16) 30%,
+    rgba(7, 4, 13, .6) 65%, rgba(7, 4, 13, .92) 88%, var(--bg-0));
+  pointer-events: none;
+}
+
+.steps::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 100px;
+  background: linear-gradient(var(--bg-0), transparent);
+  pointer-events: none;
+}
+
+.steps > .container {
+  position: relative;
+  z-index: 1;
+}

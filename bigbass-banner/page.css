@@ -7,7 +7,6 @@
   --bg-0: #07040d;
   --bg-1: #120a1f;
   --bg-2: #1d0e2e;
-  --seam: #2a1a2a;          /* = average colour of the hero image's bottom edge, a touch darker */
   --page-end: #0e0718;      /* steps fade into this; T&C and the footer continue it */
   --orange: #ff8a1c;
   --orange-deep: #e05400;
@@ -231,91 +230,7 @@ a { color: inherit; }
 /* ============================================================
    HERO wrapper
    ============================================================ */
-.hero { position: relative; z-index: 2; }
-
-/* desktop: the hero fills the window (100dvh). The stage keeps the image's aspect and
-   covers the frame like background-size: cover, so every overlay stays on its spot.
-   Crops favour the left (keeps the offer on the right) and the bottom (keeps the headline). */
-@media (min-width: 761px) {
-  .hero::before {                              /* the tank's front glass: a faint reflection drifting across */
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    height: 100dvh;
-    z-index: 3;
-    pointer-events: none;
-    background:
-      linear-gradient(115deg, transparent 12%, rgba(215,245,255,.07) 18%, rgba(215,245,255,.02) 24%, transparent 28%,
-                      transparent 58%, rgba(215,245,255,.05) 62%, transparent 66%) 0 0 / 220% 100%;
-    animation: tank-glare 18s ease-in-out infinite alternate;
-  }
-  @keyframes tank-glare { to { background-position: 100% 0; } }
-  .hero-frame {
-    --ar: calc(2000 / 1116);
-    position: relative;
-    height: 100dvh;
-    overflow: hidden;
-    container-type: size;
-  }
-  .hero-frame > .banner {
-    --sw: calc(100cqh * var(--ar));            /* the picture's full height always fits */
-    position: absolute;
-    width: var(--sw);
-    left: calc(100cqw - var(--sw));             /* anchored right; narrow windows crop the left */
-    top: 0;
-    box-shadow: inset 50px 0 60px -30px rgba(0,20,35,.7);  /* depth at the tank's corner */
-  }
-  /* wide windows: the hero is the back wall of a box. The strip on the left is the box's
-     side wall: the scene mirrored onto it, turned toward the viewer in 3D, fading into shadow */
-  .hero-frame { --gap: max(0px, 100% - 100dvh * 2000 / 1116); }
-  .hero-frame::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: var(--gap);                           /* starts at the corner, under the picture... */
-    width: calc(var(--gap) * 1.9);              /* ...wide enough to fill the strip once foreshortened */
-    background: url("assets/bg.webp") left center / auto 100% no-repeat;
-    transform-origin: 0 50%;                    /* hinge on the corner */
-    transform: perspective(900px) rotateY(55deg) scaleX(-1);   /* the tank's side glass: the scene reflected, in deep perspective */
-    filter: saturate(1.25) brightness(.85) hue-rotate(-8deg);
-  }
-  .hero-frame::after {                          /* wall shading + a lit corner edge */
-    content: "";
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: var(--gap);
-    background:
-      /* the glass edge of the tank, catching the light */
-      linear-gradient(90deg, transparent calc(100% - 7px), rgba(170,235,255,.45) calc(100% - 4px), rgba(255,255,255,.9) calc(100% - 2px), rgba(0,25,40,.7) 100%),
-      /* glare streaks on the side glass */
-      linear-gradient(100deg, transparent 22%, rgba(200,245,255,.14) 30%, transparent 37%, transparent 58%, rgba(200,245,255,.09) 63%, transparent 67%),
-      /* water tint, deepening away from the corner */
-      linear-gradient(90deg, rgba(1,8,16,.9) 0%, rgba(3,22,36,.6) 45%, rgba(8,45,65,.28) 100%),
-      linear-gradient(180deg, rgba(0,0,0,.55), transparent 18%, transparent 80%, rgba(0,0,0,.7));
-    pointer-events: none;
-  }
-}
-.hero::after {
-  /* continue the image below itself: its last pixel row stretched down,
-     dissolving into the steps gradient, which starts on the same plum tone */
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(100% - 24px);                  /* overlap the image so the blur has no hard top edge */
-  height: clamp(94px, calc(8vw + 24px), 164px);
-  background: url("assets/bg.webp") 50% 100% / 100% 60000% no-repeat;
-  filter: blur(14px) saturate(.9);
-  scale: 1.04 1;                          /* hide the blur's soft side edges */
-  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 24px, rgba(0,0,0,.55) 55%, transparent 100%);
-          mask-image: linear-gradient(180deg, transparent 0, #000 24px, rgba(0,0,0,.55) 55%, transparent 100%);
-  pointer-events: none;
-}
+.hero-frame { --ar: calc(2000 / 1116); --poster-art: url("../bigbass-banner/assets/bg.webp"); }
 
 /* ============================================================
    STEPS
@@ -327,7 +242,7 @@ a { color: inherit; }
   background:
     radial-gradient(min(42vw, 560px) 380px at 85% 0%, rgba(255,190,110,.12), transparent 70%),   /* moon glow (fixed shape: no hard edge on phones) */
     radial-gradient(55% 35% at 12% 72%, rgba(180,92,255,.13), transparent 70%),     /* fades out before the edge */
-    linear-gradient(180deg, var(--seam) 0%, #1c1028 22%, var(--bg-1) 55%, var(--page-end) 100%);
+    linear-gradient(180deg, var(--bg-0) 0%, #1c1028 22%, var(--bg-1) 55%, var(--page-end) 100%);
 }
 .fog {
   position: absolute;
@@ -850,9 +765,6 @@ a { color: inherit; }
 }
 @media (max-width: 760px) {
   .site-header { height: 62px; gap: 12px; }
-  .hero { background: var(--bg-0); }      /* portrait hero clears the header itself (banner.css) */
-  .hero::after { display: none; }          /* the portrait hero already ends on the page colour */
-  :root { --seam: var(--bg-0); }
   .logo { font-size: 24px; }
   .btn-ghost span { display: none; }
   .btn-ghost { width: 40px; padding: 0; justify-content: center; }

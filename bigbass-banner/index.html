@@ -9,28 +9,49 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="banner.css">
 <link rel="stylesheet" href="page.css">
-<script>document.documentElement.classList.add('js', 'is-loading');</script>
+<link rel="stylesheet" href="../halloween-poster/poster.css">
+<link rel="stylesheet" href="../halloween-poster/transition.css">
+<script>
+  document.documentElement.classList.add('js', 'is-loading');
+  // End the loader as soon as HTML parsing finishes, without waiting for assets.
+  (() => {
+    const finish = () => {
+      if (document.readyState === 'loading') return;
+      document.removeEventListener('readystatechange', finish);
+      document.documentElement.classList.remove('is-loading');
+      document.getElementById('loader')?.remove();
+      dispatchEvent(new Event('loader:done'));
+    };
+    document.addEventListener('readystatechange', finish);
+    finish();
+  })();
+</script>
 <style>
-  /* loading screen (inline so it paints before anything else) */
+  /* Critical loader styles: a single moving bar, only while the DOM is parsing. */
   html.is-loading { overflow: hidden; }
   html.is-loading .hero *, html.is-loading .hero *::before, html.is-loading .hero *::after { animation-play-state: paused !important; }
-  .loader {
+  .loader { display: none; }
+  .is-loading .loader {
     position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center;
-    background: radial-gradient(60% 50% at 50% 45%, var(--lc), #07040d 72%);
-    transition: opacity .6s ease, visibility .6s;
+    background: #07040d;
   }
-  .loader.done { opacity: 0; visibility: hidden; }
-  .loader-inner { display: flex; flex-direction: column; align-items: center; gap: 14px; }
-  .loader-stage { position: relative; width: min(46vmin, 320px); height: min(46vmin, 320px); }
-  .loader-stage > * { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .loader-3d { opacity: 0; transition: opacity .35s; }
-  .loader-3d.ready { opacity: 1; }
-  .loader-logo { font: 900 30px/1 Inter, Arial, sans-serif; letter-spacing: -.02em; color: #fff; }
-  .loader-logo b { color: #e8202a; }
-  .loader-bar { width: min(60vw, 260px); height: 4px; border-radius: 4px; background: rgba(255,255,255,.12); overflow: hidden; }
-  .loader-bar i { display: block; height: 100%; background: var(--la); box-shadow: 0 0 12px var(--la); transform: scaleX(0); transform-origin: left; transition: transform .3s ease; }
-  .loader-pct { font: 700 12px/1 Inter, Arial, sans-serif; letter-spacing: .14em; color: rgba(255,255,255,.65); }
-  @media (prefers-reduced-motion: reduce) { .loader-3d { display: none; } }
+  .loader-bar {
+    width: min(60vw, 240px); height: 3px; overflow: hidden; border-radius: 3px;
+    background: rgba(255,255,255,.1);
+  }
+  .loader-bar i {
+    display: block; width: 38%; height: 100%; border-radius: inherit;
+    background: linear-gradient(90deg, transparent, var(--la) 35%, #fff 80%, transparent);
+    box-shadow: 0 0 12px var(--la);
+    animation: loader-sweep .9s cubic-bezier(.4,0,.2,1) infinite;
+  }
+  @keyframes loader-sweep {
+    from { transform: translateX(-110%); }
+    to { transform: translateX(370%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .loader-bar i { animation: none; transform: translateX(80%); }
+  }
 </style>
 <script type="importmap">
 {
@@ -45,22 +66,12 @@
 <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/loaders/DRACOLoader.js">
 <link rel="preload" href="https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/libs/draco/gltf/draco_wasm_wrapper.js" as="fetch" crossorigin>
 <link rel="preload" href="https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/libs/draco/gltf/draco_decoder.wasm" as="fetch" crossorigin>
-<link rel="preload" href="assets/spider_lite.glb" as="fetch" crossorigin>
-<script src="loader3d.js" defer></script>
 </head>
 <body>
 
-<!-- ============ LOADING SCREEN (3D model from tools/, logic in loader3d.js) ============ -->
-<div id="loader" class="loader" style="--lc:#3a1606;--la:#ff8a1c" role="status" aria-live="polite"
-     data-model="assets/spider_lite.glb" data-mode="spider" data-assets="assets/bg.webp,assets/spider.glb,assets/pumpkin.glb">
-  <div class="loader-inner">
-    <div class="loader-stage">
-      <canvas class="loader-3d" aria-hidden="true"></canvas>
-    </div>
-    <div class="loader-logo">NET<b>BET</b></div>
-    <div class="loader-bar"><i></i></div>
-    <span class="loader-pct">0%</span>
-  </div>
+<!-- ============ DOM LOADER ============ -->
+<div id="loader" class="loader" style="--la:#ff8a1c" role="progressbar" aria-label="Φόρτωση σελίδας">
+  <div class="loader-bar" aria-hidden="true"><i></i></div>
 </div>
 
 <!-- ============ HEADER ============ -->
@@ -85,6 +96,8 @@
 <main>
 <div class="hero" id="top">
 <div class="hero-frame">
+<div class="poster-backdrop" aria-hidden="true"></div>
+<div class="poster-shadow" aria-hidden="true"></div>
 <!-- Stage is laid out in the image's own 2000 x 1116 px grid (1 design px = var(--u)) -->
 <section class="banner" aria-label="Big Bass Halloween 2 – 131 Free Spins">
 

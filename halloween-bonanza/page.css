@@ -7,7 +7,6 @@
   --bg-0: #07040d;
   --bg-1: #120a1f;
   --bg-2: #1d0e2e;
-  --seam: #2a1a2a;          /* = average colour of the hero image's bottom edge, a touch darker */
   --page-end: #0e0718;      /* steps fade into this; T&C and the footer continue it */
   --orange: #62d14f;          /* Bonanza: graveyard green accents (buttons stay blue) */
   --orange-deep: #e05400;
@@ -231,71 +230,7 @@ a { color: inherit; }
 /* ============================================================
    HERO wrapper
    ============================================================ */
-.hero { position: relative; z-index: 2; }
-
-/* desktop: the hero fills the window (100dvh). The stage keeps the image's aspect and
-   covers the frame like background-size: cover, so every overlay stays on its spot.
-   Crops favour the left (keeps the offer on the right) and the bottom (keeps the headline). */
-@media (min-width: 761px) {
-  .hero-frame {
-    --ar: calc(2000 / 1006);
-    position: relative;
-    height: 100dvh;
-    overflow: hidden;
-    container-type: size;
-  }
-  .hero-frame > .stage {
-    --sw: calc(100cqh * var(--ar));            /* the picture's full height always fits */
-    position: absolute;
-    width: var(--sw);
-    left: calc(100cqw - var(--sw));             /* anchored right; narrow windows crop the left */
-    top: 0;
-    box-shadow: inset 60px 0 70px -30px rgba(0,0,0,.75);   /* the side wall's shadow falls on the back wall */
-  }
-  /* wide windows: the hero is the back wall of a box. The strip on the left is the box's
-     side wall: the scene mirrored onto it, turned toward the viewer in 3D, fading into shadow */
-  .hero-frame { --gap: max(0px, 100% - 100dvh * 2000 / 1006); }
-  .hero-frame::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: var(--gap);                           /* starts at the corner, under the picture... */
-    width: calc(var(--gap) * 1.45);             /* ...wide enough to fill the strip once foreshortened */
-    background: url("assets/bg.webp") left center / auto 100% no-repeat;
-    transform-origin: 0 50%;                    /* hinge on the corner */
-    transform: perspective(1200px) rotateY(40deg) scaleX(-1);   /* mirror into the strip, then swing it toward us */
-  }
-  .hero-frame::after {                          /* wall shading + a lit corner edge */
-    content: "";
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: var(--gap);
-    background:
-      linear-gradient(90deg, transparent calc(100% - 3px), rgba(255,180,130,.22) calc(100% - 2px), rgba(0,0,0,.55) 100%),
-      linear-gradient(90deg, #050309 0%, rgba(5,3,9,.92) 40%, rgba(5,3,9,.66) 80%, rgba(5,3,9,.5) 100%),
-      linear-gradient(180deg, rgba(7,4,13,.6), transparent 22%, transparent 78%, rgba(7,4,13,.7));
-    pointer-events: none;
-  }
-}
-.hero::after {
-  /* continue the image below itself: its last pixel row stretched down,
-     dissolving into the steps gradient, which starts on the same plum tone */
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(100% - 24px);                  /* overlap the image so the blur has no hard top edge */
-  height: clamp(94px, calc(8vw + 24px), 164px);
-  background: url("assets/bg.webp") 50% 100% / 100% 60000% no-repeat;
-  filter: blur(14px) saturate(.9);
-  scale: 1.04 1;                          /* hide the blur's soft side edges */
-  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 24px, rgba(0,0,0,.55) 55%, transparent 100%);
-          mask-image: linear-gradient(180deg, transparent 0, #000 24px, rgba(0,0,0,.55) 55%, transparent 100%);
-  pointer-events: none;
-}
+.hero-frame { --ar: calc(2000 / 1006); }
 
 /* ============================================================
    STEPS
@@ -307,7 +242,7 @@ a { color: inherit; }
   background:
     radial-gradient(min(42vw, 560px) 380px at 85% 0%, rgba(255,190,110,.12), transparent 70%),   /* moon glow (fixed shape: no hard edge on phones) */
     radial-gradient(55% 35% at 12% 72%, rgba(34,195,154,.13), transparent 70%),     /* fades out before the edge */
-    linear-gradient(180deg, var(--seam) 0%, #1c1028 22%, var(--bg-1) 55%, var(--page-end) 100%);
+    linear-gradient(180deg, var(--bg-0) 0%, #1c1028 22%, var(--bg-1) 55%, var(--page-end) 100%);
 }
 .fog {
   position: absolute;
@@ -830,9 +765,6 @@ a { color: inherit; }
 }
 @media (max-width: 760px) {
   .site-header { height: 62px; gap: 12px; }
-  .hero { background: var(--bg-0); }      /* portrait hero clears the header itself (banner.css) */
-  .hero::after { display: none; }          /* the portrait hero already ends on the page colour */
-  :root { --seam: var(--bg-0); }
   .logo { font-size: 24px; }
   .btn-ghost span { display: none; }
   .btn-ghost { width: 40px; padding: 0; justify-content: center; }
