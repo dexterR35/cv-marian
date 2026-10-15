@@ -20,6 +20,8 @@ from mathutils import Vector, Quaternion
 argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 OUT_DIR = os.path.abspath(argv[0] if argv else ".")
 PREVIEW = "--preview" in argv
+LITE = "--lite" in argv          # a light version for the loading screen (spider_lite.glb)
+D = 0.06 if LITE else 1.0        # how much hair / detail to keep
 os.makedirs(OUT_DIR, exist_ok=True)
 
 random.seed(7)
@@ -88,6 +90,7 @@ def finish(obj, mat, bone):
     return obj
 
 def sphere(loc, scale, mat, bone, seg=32, rings=16):
+    if LITE: seg, rings = max(8, seg // 2), max(4, rings // 2)
     bpy.ops.mesh.primitive_uv_sphere_add(segments=seg, ring_count=rings, radius=1, location=loc)
     o = bpy.context.active_object
     o.scale = scale
@@ -95,6 +98,7 @@ def sphere(loc, scale, mat, bone, seg=32, rings=16):
     return finish(o, mat, bone)
 
 def tube(a, b, r1, r2, mat, bone, verts=14):
+    if LITE: verts = max(4, verts // 2)
     a, b = Vector(a), Vector(b)
     d = b - a
     bpy.ops.mesh.primitive_cone_add(vertices=verts, radius1=r1, radius2=r2, depth=d.length,
@@ -151,7 +155,7 @@ paint(ceph, ceph_color)
 tube((0, -0.25, 0.5), (0, -0.05, 0.48), 0.11, 0.13, M_CHITIN, "body")
 
 # abdomen: egg shaped, wider at the back third
-abd = sphere(ABD, (0.70, 0.98, 0.62), M_ABD, "abdomen", seg=96, rings=48)
+abd = sphere(ABD, (0.70, 0.98, 0.62), M_ABD, "abdomen", seg=32 if LITE else 96, rings=16 if LITE else 48)
 for v in abd.data.vertices:
     t = v.co.y / 0.98                                   # -1 back .. +1 front
     v.co.x *= 1.0 + 0.10 * (-t) - 0.12 * max(0.0, t) ** 2
@@ -178,7 +182,7 @@ def abd_color(co):
 paint(abd, abd_color)
 
 # fuzz: short hairs lying back along the abdomen
-for _ in range(420):
+for _ in range(int(420 * D)):
     th = random.uniform(0, math.tau)
     ph = random.uniform(0.1, 1.45)
     n = Vector((math.cos(th) * math.sin(ph), math.sin(th) * math.sin(ph), math.cos(ph)))
@@ -191,7 +195,7 @@ for _ in range(420):
     tube(base, tip, 0.007, 0.001, M_HAIR if random.random() < 0.55 else M_HAIR_D, "abdomen", verts=4)
 
 # fuzz on the cephalothorax rim
-for _ in range(90):
+for _ in range(int(90 * D)):
     th = random.uniform(0, math.tau)
     n = Vector((math.cos(th), math.sin(th), 0.35)).normalized()
     base = CEPH + Vector((n.x * 0.47, n.y * 0.58, 0.08))
@@ -238,10 +242,10 @@ for side_name, s in (("L", -1), ("R", 1)):
         tube(p3 - (p3 - p2).normalized() * 0.1, p3, r * 0.47, r * 0.47, M_BAND, bone)
         tube(p3, p4, r * 0.42, r * 0.18, M_CHITIN, bone)
         sphere(root, (r * 1.2,) * 3, M_CHITIN, bone, 14, 8)
-        spines(root, p1, r, 16, bone, 0.10)
-        spines(p1, p2, r * 0.8, 14, bone, 0.09)
-        spines(p2, p3, r * 0.55, 10, bone, 0.07)
-        spines(p3, p4, r * 0.35, 4, bone, 0.05)
+        spines(root, p1, r, max(2, int(16 * D)), bone, 0.10)
+        spines(p1, p2, r * 0.8, max(2, int(14 * D)), bone, 0.09)
+        spines(p2, p3, r * 0.55, max(1, int(10 * D)), bone, 0.07)
+        if not LITE: spines(p3, p4, r * 0.35, 4, bone, 0.05)
         legs.append({"bone": bone, "side": s, "dir": d, "root": root, "group": (k + (0 if s < 0 else 1)) % 2})
 
 # pedipalps
@@ -360,7 +364,10 @@ for f in range(0, WALK_LEN + 1, 2):
     key_rot(pose["abdomen"], Quaternion(local_axis(pose["abdomen"], (0, 0, 1)), 0.05 * math.sin(2 * math.pi * u0 - 0.6)), f)
     for s_name, s in (("L", -1), ("R", 1)):
         key_rot(pose[f"palp_{s_name}"], Quaternion(local_axis(pose[f"palp_{s_name}"], (1, 0, 0)), 0.25 * math.sin(2 * math.pi * u0 + (0 if s < 0 else math.pi))), f)
-push_to_nla(walk)
+if LITE:                         # the loader never walks: drop the clip
+    bpy.data.actions.remove(walk)
+else:
+    push_to_nla(walk)
 
 # ---------------------------------------------------------------- IDLE (90 frames loop)
 IDLE_LEN = 90
@@ -386,7 +393,7 @@ for f in range(0, IDLE_LEN + 1, 3):
 push_to_nla(idle)
 
 # ---------------------------------------------------------------- export
-glb = os.path.join(OUT_DIR, "spider.glb")
+glb = os.path.join(OUT_DIR, "spider_lite.glb" if LITE else "spider.glb")
 bpy.ops.object.select_all(action="SELECT")
 bpy.ops.export_scene.gltf(
     filepath=glb,
