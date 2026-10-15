@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="hero.css">
+<link rel="stylesheet" href="hero.css?v=hands-restored">
 <link rel="stylesheet" href="page.css">
 <link rel="stylesheet" href="../halloween-poster/fullscreen.css">
 <link rel="stylesheet" href="../halloween-poster/transition.css">
@@ -144,6 +144,15 @@
   <i class="glow seven s2" aria-hidden="true"></i>
   <i class="glow seven s3" aria-hidden="true"></i>
   <i class="reel-sweep" aria-hidden="true"></i>
+  <!-- skeleton hands clawing up out of the ground fog (Three.js), with fog puffing round them -->
+  <canvas class="hands-canvas" aria-hidden="true"></canvas>
+  <i class="fog-puff" style="--x:560;--y:995" aria-hidden="true"></i>
+  <!-- one skeleton hand climbs out of the fog and tries to drag the BU HU HU button down -->
+  <canvas class="grab-canvas" aria-hidden="true"></canvas>
+  <i class="fog-puff grab-puff" style="--x:1700;--y:995" aria-hidden="true"></i>
+  <!-- desktop: a second hand hooks the email field -->
+  <canvas class="grab-canvas grab-canvas-2" aria-hidden="true"></canvas>
+  <i class="fog-puff grab-puff grab-puff-2" style="--x:1300;--y:995" aria-hidden="true"></i>
   <div class="ground-fog" aria-hidden="true"></div>
 
   <!-- a living spider web strung from the screen corner by the character to the 313 text;
@@ -381,6 +390,6 @@
 <script src="offer.js"></script>
 
 <!-- 3D ghosts floating over the screen + the web and its spider (Three.js; ghost from tools/, spider from bigbass-banner/tools/build_spider.py) -->
-<script type="module" src="creatures3d.js"></script>
+<script type="module" src="creatures3d.js?v=hands-restored"></script>
 </body>
 </html>

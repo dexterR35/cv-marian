@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="hero.css">
+<link rel="stylesheet" href="hero.css?v=hands-restored">
 <link rel="stylesheet" href="page.css">
 <link rel="stylesheet" href="../halloween-poster/fullscreen.css">
 <link rel="stylesheet" href="../halloween-poster/transition.css">
@@ -133,6 +133,12 @@
   <i class="pk-light pk2" aria-hidden="true"></i>
   <i class="pk-light pk3" aria-hidden="true"></i>
   <div class="ground-fog" aria-hidden="true"></div>
+
+  <!-- zombie hands clawing out of the graves (Three.js draws them; the mounds and clods are CSS) -->
+  <canvas class="hands-canvas" aria-hidden="true"></canvas>
+  <div class="mound" data-hand="0" style="--x:880;--y:915" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="mound" data-hand="1" style="--x:1090;--y:945" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="mound" data-hand="2" style="--x:300;--y:985" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
 
   <!-- the offer, part 1: 3D text in the sky -->
   <div class="offer-top">
@@ -393,7 +399,7 @@
 
 <script src="page.js"></script>
 
-<!-- 3D bats and smiling ghosts floating over the screen (Three.js, models from tools/) -->
-<script type="module" src="creatures3d.js"></script>
+<!-- 3D bats flying over the screen and zombie hands rising from the ground -->
+<script type="module" src="creatures3d.js?v=bats-and-hands"></script>
 </body>
 </html>

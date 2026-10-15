@@ -464,3 +464,46 @@ body {
 /* the picture's own branches drawn again in front of the gravestone */
 .fg-branches { inset: 0; width: 100%; height: 100%; z-index: 6; pointer-events: none; }
 @media (max-width: 760px) { .fg-branches { display: none; } }
+
+/* ---------- zombie hands (WebGL) + their dirt mounds ---------- */
+.hands-canvas { inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; }
+.mound {
+  left: calc(var(--x) * var(--u));
+  top: calc(var(--y) * var(--u));
+  width: calc(150 * var(--u));
+  height: calc(38 * var(--u));
+  translate: -50% -50%;
+  border-radius: 50%;
+  background:
+    radial-gradient(closest-side, rgba(30,16,20,.95), rgba(40,22,26,.75) 60%, transparent),
+    radial-gradient(40% 50% at 30% 40%, rgba(90,50,40,.6), transparent);
+  filter: blur(calc(1.5 * var(--u)));
+  z-index: 4;
+  pointer-events: none;
+}
+.mound i {                                   /* dirt clods thrown up as the hand breaks out */
+  position: absolute;
+  left: calc(50% + var(--dx) * var(--u));
+  top: 40%;
+  width: calc(var(--sz, 9) * var(--u));
+  aspect-ratio: 1;
+  border-radius: 40%;
+  background: #3a2420;
+  opacity: 0;
+}
+.mound.burst i { animation: clod 1s cubic-bezier(.2,.7,.4,1) forwards; }
+.mound i:nth-child(1) { --dx: -40; --tx: -70; --ty: -90; }
+.mound i:nth-child(2) { --dx: -15; --tx: -25; --ty: -130; --sz: 7; }
+.mound i:nth-child(3) { --dx: 10;  --tx: 20;  --ty: -110; --sz: 11; }
+.mound i:nth-child(4) { --dx: 35;  --tx: 75;  --ty: -80; }
+.mound i:nth-child(5) { --dx: 0;   --tx: -5;  --ty: -150; --sz: 6; }
+
+@keyframes clod {
+  0%   { opacity: 0; transform: translate(0, 0); }
+  10%  { opacity: 1; }
+  55%  { transform: translate(calc(var(--tx) * .6 * var(--u)), calc(var(--ty) * var(--u))) rotate(120deg); }
+  100% { opacity: 0; transform: translate(calc(var(--tx) * var(--u)), calc(10 * var(--u))) rotate(260deg); }
+}
+
+
+@media (max-width: 760px) { .hands-canvas, .mound { display: none; } }

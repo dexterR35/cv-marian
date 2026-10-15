@@ -4,11 +4,10 @@
               erratic routes with flutter and speed bursts: small and large, fast and slow, flapping
               or gliding. Fixed, click-through canvas over the page;
               the camera looks straight down so 1 unit = 1 CSS px.
-   2. GHOSTS — shared floating sheet ghosts with a devilish grin.
-   Models: assets/bat.glb and ../halloween-ro/assets/ghost.glb
+   2. HANDS — zombie hands claw their way out of the grave mounds.
+   Models: assets/bat.glb and assets/hand.glb
    ============================================================ */
 import * as THREE from 'three';
-import '../halloween-poster/ghosts.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
@@ -284,4 +283,125 @@ async function createBats() {
     show() { if (!canvas.isConnected) document.body.appendChild(canvas); visible = true; clock.getDelta(); },
     hide() { visible = false; canvas.remove(); pool.forEach(b => { b.active = false; b.rig.visible = false; }); },
   };
+}
+
+/* ============================================================
+   2. ZOMBIE HANDS in the hero
+   ============================================================ */
+const handsCanvas = document.querySelector('.hands-canvas');
+if (handsCanvas && getComputedStyle(handsCanvas).display !== 'none') {
+  createHands(handsCanvas).catch(err => console.warn('hands:', err));
+}
+
+async function createHands(canvas) {
+  const STAGE_W = 2000, STAGE_H = 1006;                       // the background image grid
+  const renderer = makeRenderer(canvas);
+  renderer.localClippingEnabled = true;                       // the ground hides what is still buried
+
+  const scene = new THREE.Scene();
+  addEnvironment(renderer, scene, 0.25);
+  // orthographic camera in image pixels: x right, y up (image y flipped)
+  const camera = new THREE.OrthographicCamera(0, STAGE_W, STAGE_H, 0, -2000, 2000);
+  camera.position.z = 1000;
+
+  scene.add(new THREE.HemisphereLight(0x9c88d8, 0x1a0c08, 1.8));
+  const ghoul = new THREE.DirectionalLight(0x9dff7a, 0.9);          // sickly green fill from the front
+  ghoul.position.set(0, -200, 800);
+  scene.add(ghoul);
+  const pumpkinLight = new THREE.DirectionalLight(0xff9a3a, 3.0);   // from the jack-o'-lanterns, lower left
+  pumpkinLight.position.set(-400, 150, 600);
+  const moon = new THREE.DirectionalLight(0x9fb4ff, 1.6);           // cold rim from behind
+  moon.position.set(300, 700, -500);
+  scene.add(pumpkinLight, moon);
+
+  const gltf = await loader.loadAsync('assets/hand.glb');
+
+  const mounds = [...document.querySelectorAll('.mound')];
+  const SIZES = [125, 110, 95];
+  const hands = mounds.map((mound, i) => {
+    const x = parseFloat(mound.style.getPropertyValue('--x'));
+    const groundY = STAGE_H - parseFloat(mound.style.getPropertyValue('--y'));
+    const S = SIZES[i] ?? 75;
+
+    const model = SkeletonUtils.clone(gltf.scene);
+    const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -groundY);
+    model.traverse(o => {
+      if (!o.isMesh) return;
+      o.frustumCulled = false;
+      o.material = o.material.clone();
+      o.material.clippingPlanes = [plane];
+      o.material.clipShadows = true;
+    });
+    const mirror = i % 2 ? -1 : 1;                            // left and right hands
+    model.scale.set(S * mirror, S, S);
+    model.rotation.set(rand(-0.15, 0.1), rand(-0.45, 0.45), rand(-0.18, 0.18));
+    scene.add(model);
+
+    const mixer = new THREE.AnimationMixer(model);
+    const claw = mixer.clipAction(clipNamed(gltf, 'claw'));
+    claw.play();
+    claw.time = rand(0, 3);
+    claw.timeScale = rand(0.8, 1.2);
+
+    return {
+      model, mixer, mound, x, groundY, S,
+      hidden: groundY - 2.0 * S,                               // fingertips below the dirt
+      up: groundY + rand(0.45, 0.7) * S,                       // wrist and a bit of sleeve out of the grave
+      state: 'wait', t: rand(0.4, 2.5) + i * 1.3, k: 0,
+    };
+  });
+
+  function resize() {
+    const r = canvas.getBoundingClientRect();
+    renderer.setSize(r.width, r.height, false);
+  }
+  resize();
+  addEventListener('resize', resize);
+
+  const easeOutBack = t => 1 + 2.2 * (t - 1) ** 3 + 1.2 * (t - 1) ** 2;
+  const easeIn = t => t * t * t;
+
+  function update(dt) {
+    for (const h of hands) {
+      h.t -= dt;
+      if (h.state === 'wait' && h.t <= 0) {
+        h.state = 'rise'; h.k = 0;
+        h.mound.classList.remove('burst');
+        void h.mound.offsetWidth;                             // restart the dirt burst
+        h.mound.classList.add('burst');
+      }
+      if (h.state === 'rise') {
+        h.k = Math.min(1, h.k + dt / 1.3);
+        if (h.k >= 1) { h.state = 'claw'; h.t = rand(3, 6); }
+      } else if (h.state === 'claw' && h.t <= 0) {
+        h.state = 'sink'; h.k = 1;
+      } else if (h.state === 'sink') {
+        h.k = Math.max(0, h.k - dt / 1.6);
+        if (h.k <= 0) { h.state = 'wait'; h.t = rand(1.5, 5); }
+      }
+      const f = h.state === 'sink' ? easeIn(h.k) : h.state === 'rise' ? easeOutBack(h.k) : h.state === 'claw' ? 1 : 0;
+      const shake = h.state === 'rise' ? Math.sin(h.k * 40) * (1 - h.k) * 0.06 * h.S : 0;   // struggles through the dirt
+      h.model.position.set(h.x + shake, h.hidden + (h.up - h.hidden) * f, 0);
+      h.mixer.update(dt);
+    }
+  }
+
+  if (reduceMotion) {                                         // static: hands already out, no movement
+    hands.forEach(h => { h.state = 'claw'; h.t = Infinity; h.model.position.set(h.x, h.up, 0); h.mixer.update(0); });
+    renderer.render(scene, camera);
+    return;
+  }
+
+  // only animate while the hero is on screen
+  let onScreen = true;
+  new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; }).observe(canvas);
+  const clock = new THREE.Clock();
+  renderer.setAnimationLoop(() => {
+    const dt = Math.min(clock.getDelta(), 1 / 20);
+    if (!onScreen) return;
+    update(dt);
+    renderer.render(scene, camera);
+  });
+
+  if (new URLSearchParams(location.search).has('creature-debug')) window.__hands = hands;
 }
