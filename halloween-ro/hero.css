@@ -1,0 +1,424 @@
+/* ============================================================
+   NetBet RO Halloween — hero
+   The stage uses the background image's own 2000 x 1006 grid:
+   calc(N * var(--u)) == N image pixels.
+   ============================================================ */
+
+:root {
+  --ink: #1d0b2c;
+  --ink-2: #2e1244;
+  --cream-1: #fffaf2;
+  --cream-2: #f6dccb;
+  --cream-3: #e3b3a0;
+  --gold-1: #fff6b8;
+  --gold-2: #ffd23a;
+  --gold-3: #ff9a0a;
+  --gold-4: #e45c00;
+  --red-1: #ff8a8a;
+  --red-2: #ff2b2b;
+  --red-3: #c8000f;
+  --blue: #2350ff;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #07040d;
+  overflow-x: hidden;
+  font-family: "Inter", Arial, sans-serif;
+}
+
+/* ---------- 3D logo-style text ----------------------------------
+   The element itself paints outline + extrusion (dark),
+   ::after paints the textured face on top.                       */
+.t3d {
+  position: relative;
+  display: inline-block;
+  font-family: "Inter", "Arial Black", sans-serif;
+  font-weight: 900;
+  line-height: .95;
+  letter-spacing: -.025em;
+  color: var(--ink);
+  -webkit-text-stroke: .13em var(--ink);
+  paint-order: stroke fill;
+  text-shadow:
+    .012em .02em 0 var(--ink),  .024em .04em 0 var(--ink),
+    .036em .06em 0 var(--ink),  .048em .08em 0 var(--ink-2),
+    .06em .10em 0 var(--ink-2), .07em .12em 0 #12061c,
+    .08em .16em .12em rgba(0,0,0,.65);
+  white-space: nowrap;
+}
+.t3d::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+  color: transparent;
+  -webkit-background-clip: text;
+          background-clip: text;
+}
+
+/* cracked cream face — like "BIG BASS" */
+.cream::after {
+  background-image:
+    /* crack veins */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='turbulence' baseFrequency='.018' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .2 0 0 0 0 .22 -14 0 0 0 1.25'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23c)'/%3E%3C/svg%3E"),
+    /* stone mottling */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.03' numOctaves='3' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 .78 0 0 0 0 .5 0 0 0 0 .45 -2.4 0 0 0 1.25'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    linear-gradient(180deg, var(--cream-1) 0%, var(--cream-1) 30%, var(--cream-2) 62%, var(--cream-3) 100%);
+  background-size: .9em .9em, 1.4em 1.4em, 100% 100%;
+}
+
+/* molten gold face — like "HALLOWEEN 2" */
+.gold::after {
+  background-image:
+    linear-gradient(180deg, rgba(255,255,255,.55) 0 18%, transparent 30%),
+    linear-gradient(180deg, var(--gold-1) 0%, var(--gold-2) 38%, var(--gold-3) 68%, var(--gold-4) 100%);
+}
+.gold {
+  text-shadow:
+    .012em .02em 0 var(--ink),  .024em .04em 0 var(--ink),
+    .036em .06em 0 var(--ink),  .048em .08em 0 var(--ink-2),
+    .06em .10em 0 var(--ink-2), .07em .12em 0 #12061c,
+    .08em .16em .12em rgba(0,0,0,.65),
+    0 0 .45em rgba(255,140,0,.45);
+}
+
+/* red face for the promo code */
+.red::after {
+  background-image:
+    linear-gradient(180deg, rgba(255,255,255,.5) 0 16%, transparent 30%),
+    linear-gradient(180deg, var(--red-1) 0%, var(--red-2) 45%, var(--red-3) 100%);
+}
+.red { text-shadow:
+    .012em .02em 0 var(--ink), .024em .04em 0 var(--ink), .036em .06em 0 var(--ink),
+    .048em .08em 0 var(--ink-2), .06em .1em 0 #12061c, .08em .14em .12em rgba(0,0,0,.6),
+    0 0 .5em rgba(255,40,40,.55); }
+
+/* ============================================================
+   STAGE
+   ============================================================ */
+.stage {
+  --u: calc(100cqw / 2000);
+  container-type: inline-size;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2000 / 1006;
+  background: url("assets/bg.webp") center / 100% 100% no-repeat;
+  overflow: hidden;
+  isolation: isolate;
+}
+.stage > * { position: absolute; }
+.art { display: none; }
+
+/* ============================================================
+   LIVING LIGHTS over the picture (screen-blended glows)
+   ============================================================ */
+.glow {
+  left: calc(var(--x) * var(--u));
+  top: calc(var(--y) * var(--u));
+  width: calc(var(--s) * var(--u));
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 1;
+}
+/* the pumpkin-head: a fire that breathes behind the carved face, eyes that flare */
+.face  { --x: 468; --y: 440; --s: 380; background: radial-gradient(closest-side, rgba(255,170,50,.55), rgba(255,90,10,.25) 50%, transparent 75%); animation: candle 2.8s steps(1) infinite, breathe 3.2s ease-in-out infinite; }
+.eye   { --s: 120; background: radial-gradient(closest-side, rgba(255,245,170,.95), rgba(255,170,40,.6) 40%, transparent 75%); animation: eye-flare 4.5s ease-in-out infinite; }
+.eye-l { --x: 392; --y: 418; }
+.eye-r { --x: 548; --y: 398; animation-delay: .15s; }
+.pk-right { --x: 1610; --y: 790; --s: 240; background: radial-gradient(closest-side, rgba(255,170,50,.6), rgba(255,90,10,.25) 50%, transparent 75%); animation: candle 2.3s steps(1) infinite; }
+.candle { --s: 90; background: radial-gradient(closest-side, rgba(255,215,120,.8), rgba(255,140,30,.3) 50%, transparent 75%); animation: candle var(--d, 2s) steps(1) infinite, sway 2.6s ease-in-out infinite; }
+.c1 { --x: 1422; --y: 782; --d: 1.9s; }
+.c2 { --x: 1656; --y: 650; --d: 2.4s; --s: 70; }
+.c3 { --x: 1903; --y: 640; --d: 2.1s; --s: 70; }
+.c4 { --x: 1236; --y: 885; --d: 2.7s; --s: 70; }
+.window { --s: 70; background: radial-gradient(closest-side, rgba(255,120,40,.7), transparent 70%); animation: candle var(--d, 3s) steps(1) infinite; }
+.w1 { --x: 866; --y: 210; --d: 3.1s; }
+.w2 { --x: 780; --y: 312; --s: 110; --d: 2.6s; }
+.w3 { --x: 1060; --y: 290; --d: 3.6s; }
+/* 777: neon sevens light up one after another like a slot win */
+.seven { --s: 210; background: radial-gradient(closest-side, rgba(255,60,50,.75), rgba(255,20,20,.25) 50%, transparent 75%); opacity: .35; animation: seven 2.4s ease-in-out infinite; }
+.s1 { --x: 285; --y: 808; }
+.s2 { --x: 428; --y: 832; animation-delay: .25s; }
+.s3 { --x: 543; --y: 852; animation-delay: .5s; }
+.reel-sweep {                              /* a light bar sweeping across the reels */
+  left: calc(170 * var(--u));
+  top: calc(700 * var(--u));
+  width: calc(470 * var(--u));
+  height: calc(260 * var(--u));
+  background: linear-gradient(100deg, transparent 40%, rgba(255,230,200,.45) 50%, transparent 60%) 150% 0 / 300% 100% no-repeat;
+  mix-blend-mode: screen;
+  transform: rotate(10deg);
+  -webkit-mask-image: radial-gradient(closest-side, #000 60%, transparent);
+          mask-image: radial-gradient(closest-side, #000 60%, transparent);
+  animation: shimmer 4s 1.5s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+.ground-fog {
+  left: -10%;
+  right: -10%;
+  bottom: 0;
+  height: 30%;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='300'%3E%3Cfilter id='f' x='0' y='0' width='1' height='1'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.005 .02' numOctaves='3' seed='8' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .95 0 0 0 0 .55 0 0 0 0 .65 0 0 0 1.4 -.55'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E") 0 100% / 800px 100% repeat-x;
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 55%);
+          mask-image: linear-gradient(180deg, transparent, #000 55%);
+  opacity: .3;
+  animation: fog-drift 46s linear infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+/* the web: hair-thin silk with a faint moonlit glow */
+.web-svg { inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; overflow: visible; }
+.web-svg path { fill: none; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.web-radial { stroke: rgba(236,232,255,.6); stroke-width: 1.3; }
+.web-moor { stroke: rgba(240,236,255,.75); stroke-width: 1.7; }    /* the threads that glue the web to things */
+.web-spiral { stroke: rgba(236,232,255,.45); stroke-width: 1; }
+.web-threads { filter: drop-shadow(0 0 2px rgba(200,190,255,.55)); }
+.web-dew circle { fill: #fff; filter: drop-shadow(0 0 3px #fff); animation: dew 3.4s ease-in-out infinite; }
+@keyframes dew { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+.spider-canvas { inset: 0; width: 100%; height: 100%; z-index: 4; pointer-events: none; }
+.m-web, .m-spider { display: none; }
+/* skeleton hands rise behind the ground fog */
+.hands-canvas { inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
+.fog-puff {
+  left: calc(var(--x) * var(--u));
+  top: calc(var(--y) * var(--u));
+  width: calc(340 * var(--u));
+  height: calc(150 * var(--u));
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(235,200,215,.55), rgba(200,150,180,.22) 55%, transparent);
+  filter: blur(calc(10 * var(--u)));
+  opacity: .25;
+  z-index: 2;
+  pointer-events: none;
+  transition: opacity 1.2s ease, scale 2s ease;
+}
+.fog-puff.stir { opacity: .9; scale: 1.25; }
+/* the grabbing hand sits behind the form: its fingers grip the button from the back */
+.grab-canvas { inset: 0; width: 100%; height: 100%; z-index: 4; pointer-events: none; }
+/* the button gives a little under each tug (driven by creatures3d.js) */
+.signup .cta { translate: 0 var(--pull, 0px); rotate: var(--bend, 0deg); transform-origin: 85% 0; }
+.signup input[type="email"] { translate: 0 var(--pull, 0px); rotate: var(--bend, 0deg); transform-origin: 85% 0; }
+
+/* ============================================================
+   OFFER: 313 ROTIRI GRATIS BÂNTUITE
+   ============================================================ */
+.offer {
+  left: calc(1100 * var(--u));
+  width: calc(780 * var(--u));
+  top: calc(190 * var(--u));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  z-index: 5;
+}
+.title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: calc(92 * var(--u));
+  transform: rotate(-2deg);
+}
+.title .big {
+  font-size: calc(250 * var(--u));
+  line-height: .82;
+  letter-spacing: -.04em;
+  animation: drop-in 1s .1s cubic-bezier(.2,.9,.3,1.3) both, heartbeat 2.6s 2s ease-in-out infinite;
+}
+.title .line { animation: rise-in .9s .35s cubic-bezier(.2,.9,.3,1.2) both; }
+.title .line + .line { margin-top: calc(2 * var(--u)); animation-delay: .5s; }
+.valid {
+  margin-top: calc(22 * var(--u));
+  color: #fff;
+  font-weight: 600;
+  font-size: calc(22 * var(--u));
+  text-shadow: 0 1px 3px #000;
+  animation: rise-in .9s .65s both;
+}
+.valid b { font-weight: 900; }
+
+/* 3D countdown tiles */
+.countdown {
+  margin-top: calc(34 * var(--u));
+  display: flex;
+  align-items: flex-start;
+  gap: calc(10 * var(--u));
+  perspective: calc(800 * var(--u));
+  animation: rise-in .9s .8s cubic-bezier(.2,.9,.3,1.2) both;
+}
+.cd-unit { display: flex; flex-direction: column; align-items: center; gap: calc(10 * var(--u)); }
+.cd-box {
+  width: calc(96 * var(--u));
+  height: calc(92 * var(--u));
+  display: grid;
+  place-items: center;
+  border-radius: calc(14 * var(--u));
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.1) 0 50%, rgba(0,0,0,.2) 50%),
+    linear-gradient(170deg, #241434, #120a20);
+  border: calc(2 * var(--u)) solid rgba(255,60,60,.65);
+  box-shadow:
+    inset 0 calc(2 * var(--u)) 0 rgba(255,255,255,.15),
+    0 calc(6 * var(--u)) 0 #4a0710,
+    0 calc(10 * var(--u)) calc(18 * var(--u)) rgba(0,0,0,.6),
+    0 0 calc(20 * var(--u)) rgba(255,40,40,.35);
+  transform: rotateX(10deg);
+}
+/* ticking: a short, simple fade when a number changes */
+.cd-num.cd-in { animation: cd-in .35s ease-out; }
+.cd-num { font-size: calc(56 * var(--u)); font-variant-numeric: tabular-nums; }
+.cd-unit small { color: #fff; font-weight: 800; font-size: calc(15 * var(--u)); letter-spacing: .08em; text-shadow: 0 1px 2px #000; }
+.cd-sep { margin-top: calc(22 * var(--u)); color: #ff6b6b; font-weight: 900; font-size: calc(40 * var(--u)); text-shadow: 0 0 .4em rgba(255,40,40,.8); animation: blink 1s steps(1) infinite; }
+
+/* email + red halloween CTA */
+.signup { margin-top: calc(28 * var(--u)); width: calc(600 * var(--u)); animation: rise-in .9s 1s cubic-bezier(.2,.9,.3,1.2) both; }
+.signup-row { display: flex; gap: calc(12 * var(--u)); }
+.signup input[type="email"] {
+  flex: 1;
+  min-width: 0;
+  height: calc(64 * var(--u));
+  padding: 0 calc(20 * var(--u));
+  border-radius: calc(10 * var(--u));
+  border: calc(2 * var(--u)) solid rgba(255,255,255,.22);
+  background: rgba(10,8,24,.75);
+  color: #fff;
+  font: 500 calc(22 * var(--u)) "Inter", sans-serif;
+  -webkit-backdrop-filter: blur(6px);
+          backdrop-filter: blur(6px);
+  transition: border-color .2s, box-shadow .2s;
+}
+.signup input[type="email"]::placeholder { color: rgba(255,255,255,.6); }
+.signup input[type="email"]:focus { outline: none; border-color: #ff4d4d; box-shadow: 0 0 0 calc(4 * var(--u)) rgba(255,60,60,.25); }
+.signup input[aria-invalid="true"] { border-color: #ff4d4d; animation: shake .4s; }
+.cta {
+  position: relative;
+  flex: none;
+  width: calc(200 * var(--u));
+  height: calc(64 * var(--u));
+  border: calc(2 * var(--u)) solid #3d0006;
+  border-radius: calc(10 * var(--u));
+  background:
+    radial-gradient(60% 120% at 50% -20%, rgba(255,210,200,.45), transparent 60%),
+    linear-gradient(180deg, #ff4f4f 0%, #e3101f 50%, #9a0612 100%);
+  color: #fff;
+  font: 900 calc(24 * var(--u)) "Inter", sans-serif;
+  letter-spacing: .02em;
+  text-shadow: 0 calc(2 * var(--u)) 0 rgba(70,0,8,.6);
+  box-shadow:
+    inset 0 calc(-5 * var(--u)) calc(8 * var(--u)) rgba(90,0,10,.5),
+    0 calc(5 * var(--u)) 0 #6e0410,
+    0 calc(10 * var(--u)) calc(18 * var(--u)) rgba(0,0,0,.6),
+    0 0 calc(26 * var(--u)) rgba(255,40,40,.6);
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform .15s, filter .15s;
+}
+.cta::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,.5) 50%, transparent 60%) 150% 0 / 300% 100% no-repeat;
+  animation: shimmer 3.2s 3s ease-in-out infinite;
+}
+.cta:hover { filter: brightness(1.12); }
+.cta:active { transform: translateY(calc(4 * var(--u))); }
+.cta:focus-visible { outline: calc(4 * var(--u)) solid #ffd23a; outline-offset: calc(4 * var(--u)); }
+.consent {
+  margin-top: calc(14 * var(--u));
+  display: flex;
+  align-items: flex-start;
+  gap: calc(10 * var(--u));
+  text-align: left;
+  color: #fff;
+  font-size: calc(16 * var(--u));
+  line-height: 1.4;
+  text-shadow: 0 1px 2px #000;
+  cursor: pointer;
+}
+.consent input { flex: none; width: calc(22 * var(--u)); height: calc(22 * var(--u)); accent-color: #e3101f; margin-top: calc(1 * var(--u)); }
+.consent a { color: #fff; font-weight: 700; }
+.consent.invalid span { color: #ff8a8a; }
+.form-msg { min-height: 1.4em; margin-top: calc(10 * var(--u)); color: #9dff9d; font-weight: 700; font-size: calc(18 * var(--u)); text-shadow: 0 1px 2px #000; }
+.form-msg.error { color: #ff8a8a; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ============================================================
+   KEYFRAMES
+   ============================================================ */
+@keyframes drop-in  { from { opacity: 0; translate: 0 -30%; } to { opacity: 1; translate: 0 0; } }
+@keyframes rise-in  { from { opacity: 0; translate: 0 30%; } to { opacity: 1; translate: 0 0; } }
+@keyframes shimmer  { 0%, 55% { background-position: 150% 0; } 100% { background-position: -50% 0; } }
+@keyframes heartbeat { 0%, 60%, 100% { scale: 1; } 70% { scale: 1.06; } 80% { scale: .99; } 90% { scale: 1.03; } }
+@keyframes cta-pulse { 50% { box-shadow: inset 0 calc(-5 * var(--u)) calc(8 * var(--u)) rgba(90,0,10,.5), 0 calc(5 * var(--u)) 0 #6e0410, 0 calc(10 * var(--u)) calc(18 * var(--u)) rgba(0,0,0,.6), 0 0 calc(50 * var(--u)) rgba(255,40,40,.95); } }
+@keyframes cd-in { from { opacity: .35; scale: .94; } to { opacity: 1; scale: 1; } }
+@keyframes blink { 50% { opacity: .25; } }
+@keyframes shake { 20%, 60% { translate: -6px 0; } 40%, 80% { translate: 6px 0; } }
+@keyframes candle {
+  0%, 100% { opacity: 1; }
+  12% { opacity: .7; } 18% { opacity: .95; } 41% { opacity: .62; } 46% { opacity: 1; }
+  63% { opacity: .82; } 71% { opacity: .55; } 76% { opacity: .95; } 88% { opacity: .75; }
+}
+@keyframes breathe { 50% { scale: 1.08; } }
+@keyframes eye-flare { 0%, 70%, 100% { opacity: .55; scale: 1; } 78% { opacity: 1; scale: 1.25; } 86% { opacity: .7; scale: 1.05; } }
+@keyframes sway { 50% { translate: calc(-50% + 3 * var(--u)) calc(-50% - 2 * var(--u)); } }
+@keyframes seven { 0%, 100% { opacity: .3; } 30% { opacity: 1; } 55% { opacity: .45; } }
+@keyframes fog-drift { to { background-position: -800px 100%; } }
+
+/* ============================================================
+   PHONE: character on top, offer stacked underneath
+   ============================================================ */
+@media (max-width: 760px) {
+  .stage {
+    --u: calc(min(100cqw, 600px) / 760);
+    aspect-ratio: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 62px 0 32px;
+    background:
+      radial-gradient(80% 30% at 50% 45%, rgba(200,30,40,.22), transparent 70%),
+      linear-gradient(180deg, #170814 0%, #110814 55%, #07040d 100%);
+  }
+  .stage > * { position: relative; }
+  .art {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / .8;
+    background: url("assets/bg.webp") 8% 60% / auto 115% no-repeat;
+    -webkit-mask-image: linear-gradient(180deg, #000 75%, transparent);
+            mask-image: linear-gradient(180deg, #000 75%, transparent);
+  }
+  .glow, .reel-sweep, .ground-fog, .web-svg, .spider-canvas, .hands-canvas, .fog-puff { display: none; }
+  /* phone: the grabbing hand climbs up from the bottom of the hero to the button */
+  .stage > .grab-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 4; }
+  .stage > .grab-canvas-2 { display: none; }          /* phones: only the button gets grabbed */
+  /* phone web: drawn over the stage in CSS px by creatures3d.js */
+  .stage > .m-web, .stage > .m-spider { display: block; position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 6; overflow: visible; }
+  .m-web path { fill: none; stroke-linecap: round; }
+  .m-web .web-radial { stroke: rgba(236,232,255,.7); stroke-width: 1.1; }
+  .m-web .web-spiral { stroke: rgba(236,232,255,.5); stroke-width: .9; }
+  .m-web .web-moor { stroke: rgba(240,236,255,.75); stroke-width: 1.2; }
+  .offer { left: auto; top: auto; width: 100%; padding: 0 16px; margin-top: -4%; }
+  .title { font-size: calc(84 * var(--u)); }
+  .title .big { font-size: calc(220 * var(--u)); }
+  .valid { font-size: max(13px, calc(22 * var(--u))); }
+  .cd-unit small { font-size: max(10px, calc(15 * var(--u))); }
+  .signup { width: min(100%, calc(640 * var(--u))); }
+  .signup-row { flex-direction: column; }
+  .signup input[type="email"], .cta { flex: none; width: 100%; height: 52px; font-size: 17px; }
+  .consent { font-size: 12px; }
+  .consent input { width: 18px; height: 18px; }
+  .form-msg { font-size: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; animation-delay: 0s !important; }
+}

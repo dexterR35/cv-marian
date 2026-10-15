@@ -67,7 +67,20 @@ a { color: inherit; }
   animation: shine 3.4s 1s ease-in-out infinite;
   z-index: -1;
 }
-.btn-pumpkin:hover { transform: translateY(-2px); filter: brightness(1.08) saturate(1.1); }
+.btn-pumpkin:hover { filter: brightness(1.08) saturate(1.1); }     /* no lift: a moving button flickers under the cursor */
+
+/* header button: flat and simple, no 3D edge, shine or glow */
+.site-header a.btn-pumpkin {
+  border: 0;
+  background: #2350ff;
+  text-shadow: none;
+  box-shadow: none;
+  animation: none;
+}
+.site-header a.btn-pumpkin.btn-red { background: #e3101f; box-shadow: none; }
+.site-header .btn-pumpkin::after { display: none; }
+.site-header a.btn-pumpkin:hover { filter: brightness(1.12); }
+.site-header a.btn-pumpkin:active { transform: none; box-shadow: none; }
 .btn-pumpkin:hover b { translate: 4px -2px; }
 .btn-pumpkin:active { transform: translateY(4px); box-shadow: inset 0 -5px 8px rgba(5,20,110,.5), 0 1px 0 #0d2391; }
 .btn-pumpkin:focus-visible { outline: 3px solid var(--purple); outline-offset: 4px; }
@@ -219,6 +232,74 @@ a { color: inherit; }
    HERO wrapper
    ============================================================ */
 .hero { position: relative; z-index: 2; }
+
+/* desktop: the hero fills the window (100dvh). The stage keeps the image's aspect and
+   covers the frame like background-size: cover, so every overlay stays on its spot.
+   Crops favour the left (keeps the offer on the right) and the bottom (keeps the headline). */
+@media (min-width: 761px) {
+  .hero::before {                              /* the tank's front glass: a faint reflection drifting across */
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 100dvh;
+    z-index: 3;
+    pointer-events: none;
+    background:
+      linear-gradient(115deg, transparent 12%, rgba(215,245,255,.07) 18%, rgba(215,245,255,.02) 24%, transparent 28%,
+                      transparent 58%, rgba(215,245,255,.05) 62%, transparent 66%) 0 0 / 220% 100%;
+    animation: tank-glare 18s ease-in-out infinite alternate;
+  }
+  @keyframes tank-glare { to { background-position: 100% 0; } }
+  .hero-frame {
+    --ar: calc(2000 / 1116);
+    position: relative;
+    height: 100dvh;
+    overflow: hidden;
+    container-type: size;
+  }
+  .hero-frame > .banner {
+    --sw: calc(100cqh * var(--ar));            /* the picture's full height always fits */
+    position: absolute;
+    width: var(--sw);
+    left: calc(100cqw - var(--sw));             /* anchored right; narrow windows crop the left */
+    top: 0;
+    box-shadow: inset 50px 0 60px -30px rgba(0,20,35,.7);  /* depth at the tank's corner */
+  }
+  /* wide windows: the hero is the back wall of a box. The strip on the left is the box's
+     side wall: the scene mirrored onto it, turned toward the viewer in 3D, fading into shadow */
+  .hero-frame { --gap: max(0px, 100% - 100dvh * 2000 / 1116); }
+  .hero-frame::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--gap);                           /* starts at the corner, under the picture... */
+    width: calc(var(--gap) * 1.9);              /* ...wide enough to fill the strip once foreshortened */
+    background: url("assets/bg.webp") left center / auto 100% no-repeat;
+    transform-origin: 0 50%;                    /* hinge on the corner */
+    transform: perspective(900px) rotateY(55deg) scaleX(-1);   /* the tank's side glass: the scene reflected, in deep perspective */
+    filter: saturate(1.25) brightness(.85) hue-rotate(-8deg);
+  }
+  .hero-frame::after {                          /* wall shading + a lit corner edge */
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: var(--gap);
+    background:
+      /* the glass edge of the tank, catching the light */
+      linear-gradient(90deg, transparent calc(100% - 7px), rgba(170,235,255,.45) calc(100% - 4px), rgba(255,255,255,.9) calc(100% - 2px), rgba(0,25,40,.7) 100%),
+      /* glare streaks on the side glass */
+      linear-gradient(100deg, transparent 22%, rgba(200,245,255,.14) 30%, transparent 37%, transparent 58%, rgba(200,245,255,.09) 63%, transparent 67%),
+      /* water tint, deepening away from the corner */
+      linear-gradient(90deg, rgba(1,8,16,.9) 0%, rgba(3,22,36,.6) 45%, rgba(8,45,65,.28) 100%),
+      linear-gradient(180deg, rgba(0,0,0,.55), transparent 18%, transparent 80%, rgba(0,0,0,.7));
+    pointer-events: none;
+  }
+}
 .hero::after {
   /* continue the image below itself: its last pixel row stretched down,
      dissolving into the steps gradient, which starts on the same plum tone */
@@ -244,7 +325,7 @@ a { color: inherit; }
   padding: clamp(72px, 9vw, 120px) 0 clamp(90px, 10vw, 140px);
   overflow: hidden;
   background:
-    radial-gradient(40% 50% at 85% 0%, rgba(255,190,110,.12), transparent 70%),   /* moon glow */
+    radial-gradient(min(42vw, 560px) 380px at 85% 0%, rgba(255,190,110,.12), transparent 70%),   /* moon glow (fixed shape: no hard edge on phones) */
     radial-gradient(55% 35% at 12% 72%, rgba(180,92,255,.13), transparent 70%),     /* fades out before the edge */
     linear-gradient(180deg, var(--seam) 0%, #1c1028 22%, var(--bg-1) 55%, var(--page-end) 100%);
 }
@@ -376,7 +457,7 @@ a { color: inherit; }
   scale: 1 -1;
   opacity: .55;
 }
-.step:hover .step-web { opacity: 1; animation: web-shiver .5s ease-in-out; }
+.step:hover .step-web { opacity: 1; }
 
 /* spider dangling from the middle card's web */
 .step-spider {

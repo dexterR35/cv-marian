@@ -365,6 +365,21 @@ body {
   animation: pumpkin-wobble 3.4s ease-in-out infinite;
 }
 #pumpkin .pk-face { animation: flicker 2.2s steps(1) infinite; }
+/* the 3D pumpkin takes the corner once it has loaded */
+.pumpkin-3d {
+  position: absolute;
+  left: calc(-78 * var(--u));
+  top: calc(-96 * var(--u));
+  width: calc(170 * var(--u));
+  height: calc(170 * var(--u));
+  pointer-events: none;
+  /* orange halo that flares with the candle (--flare set by spider3d.js) */
+  filter: drop-shadow(0 0 calc(10 * var(--u) + 18 * var(--u) * var(--flare, 1)) rgba(255,100,0,.85)) drop-shadow(0 0 calc(40 * var(--u)) rgba(255,60,0,.35));
+  opacity: 0;
+  transition: opacity .4s;
+}
+.plaque.has-3d-pumpkin .pumpkin-3d { opacity: 1; }
+.plaque.has-3d-pumpkin .pumpkin { visibility: hidden; }
 
 .bonus {
   position: relative;
@@ -419,7 +434,6 @@ body {
     0 calc(12 * var(--u)) calc(20 * var(--u)) rgba(0,0,0,.6),
     0 0 calc(30 * var(--u)) rgba(60,110,255,.7);
   transition: transform .15s, filter .15s;
-  animation: cta-pulse 2.4s 3s ease-in-out infinite;
 }
 .cta span, .cta b { position: relative; z-index: 1; }
 .cta b { font-size: 1.3em; line-height: 0; translate: 0 calc(-3 * var(--u)); }
@@ -443,7 +457,7 @@ body {
   background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,.55) 50%, transparent 60%) 150% 0 / 300% 100% no-repeat;
   animation: shine 3.2s 3s ease-in-out infinite;
 }
-.cta:hover { filter: brightness(1.1) saturate(1.1); transform: translateY(calc(-2 * var(--u))); }
+.cta:hover { filter: brightness(1.1) saturate(1.1); }
 .cta:active { transform: translateY(calc(5 * var(--u))); }
 .cta:focus-visible { outline: calc(4 * var(--u)) solid #b45cff; outline-offset: calc(5 * var(--u)); }
 

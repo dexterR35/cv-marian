@@ -4,8 +4,38 @@
     {
       "name": "bigbass-banner",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "5517", "--directory", "bigbass-banner"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "5517",
+        "--directory",
+        "bigbass-banner"
+      ],
       "port": 5517
+    },
+    {
+      "name": "halloween-bonanza",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "5518",
+        "--directory",
+        "halloween-bonanza"
+      ],
+      "port": 5518
+    },
+    {
+      "name": "halloween-ro",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "5519",
+        "--directory",
+        "halloween-ro"
+      ],
+      "port": 5519
     }
   ]
 }

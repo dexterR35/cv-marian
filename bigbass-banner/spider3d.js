@@ -5,7 +5,8 @@
      down at a plane that matches the viewport 1:1 (1 unit = 1 CSS px),
      so the spider lives "on the display", not in the page
    - two spiders, each with its own route and temperament; they stay on
-     screen, wander in bursts, pause, avoid each other and run from the cursor
+     screen, wander in bursts, pause, avoid each other, and while the cursor
+     moves they trail it at a distance, a beat behind
    ============================================================ */
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -146,10 +147,12 @@ async function createCrawler() {
   const PROFILES = [
     {
       span: coarse ? 110 : 160, cruise: [70, 140], slow: [10, 30], pauseChance: 0.35, pause: [1.5, 3.5],
+      keep: 230, lag: 0.7, followMax: 260,          // follows the cursor from 230 px, 0.7 s behind
       route: [[0.12, 0.2], [0.5, 0.12], [0.88, 0.2], [0.9, 0.55], [0.85, 0.86], [0.5, 0.9], [0.12, 0.84], [0.1, 0.5]],
     },
     {
       span: coarse ? 80 : 115, cruise: [110, 210], slow: [15, 45], pauseChance: 0.25, pause: [0.6, 2.0],
+      keep: 160, lag: 0.4, followMax: 340,          // a bolder one: 160 px away, 0.4 s behind
       route: [[0.7, 0.75], [0.3, 0.35], [0.55, 0.55], [0.25, 0.7], [0.68, 0.3], [0.45, 0.5]],
     },
   ];
@@ -332,7 +335,19 @@ async function createCrawler() {
     resetSign();
   }
 
-  addEventListener('pointermove', e => { pointer.x = e.clientX; pointer.y = e.clientY; pointer.t = performance.now(); }, { passive: true });
+  const trail = [];                                  // recent cursor positions, so spiders can follow with a delay
+  addEventListener('pointermove', e => {
+    pointer.x = e.clientX; pointer.y = e.clientY; pointer.t = performance.now();
+    trail.push({ t: pointer.t, x: pointer.x, y: pointer.y });
+    while (trail.length > 2 && trail[1].t < pointer.t - 1500) trail.shift();
+  }, { passive: true });
+  addEventListener('pointerleave', () => { pointer.t = 0; });
+  // where the cursor was `lag` seconds ago
+  function lagged(lag) {
+    const tt = performance.now() - lag * 1000;
+    for (let i = trail.length - 1; i >= 0; i--) if (trail[i].t <= tt) return trail[i];
+    return trail[0] ?? pointer;
+  }
   addEventListener('pointerdown', e => {
     for (const sp of spiders) {
       if (Math.hypot(e.clientX - sp.x, e.clientY - sp.y) < sp.radius * 1.5) scare(sp, e.clientX, e.clientY);
@@ -351,9 +366,11 @@ async function createCrawler() {
       sp.speed += (0 - sp.speed) * Math.min(1, dt * 12);
       return;
     }
-    const pd = Math.hypot(pointer.x - sp.x, pointer.y - sp.y);
+    // the cursor is interesting: while it moves, the spiders trail it at a distance, a beat behind
     const reaching = sp === carrier && nearCta(pointer.x, pointer.y);
-    if (sp.mode !== 'flee' && !reaching && pd < sp.radius + 70 && performance.now() - pointer.t < 600) scare(sp, pointer.x, pointer.y);
+    const active = pointer.t && performance.now() - pointer.t < 3500;
+    if (active && (sp.mode === 'route' || sp.mode === 'pause')) sp.mode = 'follow';
+    if (!active && sp.mode === 'follow') nearestWaypoint(sp);
 
     if (sp.mode === 'route') {
       // spiders move in bursts: run, slow down, run
@@ -372,6 +389,20 @@ async function createCrawler() {
       desired = 0;
       sp.timer -= dt;
       if (sp.timer <= 0) nextWaypoint(sp);
+    } else if (sp.mode === 'follow') {
+      const lp = lagged(p.lag);
+      let dx = sp.x - lp.x, dy = sp.y - lp.y;
+      const d0 = Math.hypot(dx, dy) || 1;
+      dx /= d0; dy /= d0;
+      // stand off at `keep` px from where the cursor was, on the side the spider is already on
+      sp.target = { x: clamp(lp.x + dx * p.keep, margin(sp), W - margin(sp)), y: clamp(lp.y + dy * p.keep, margin(sp) + TOP, H - margin(sp)) };
+      const dt2 = Math.hypot(sp.target.x - sp.x, sp.target.y - sp.y);
+      desired = reaching ? 0 : clamp((dt2 - 12) * 2.4, 0, p.followMax);
+      turnRate = 4.5;
+      if (desired < 8) {                              // arrived: turn in place to watch the cursor
+        const look = Math.atan2(lp.y - sp.y, lp.x - sp.x);
+        sp.heading += clamp(angleDiff(sp.heading, look), -2.5 * dt, 2.5 * dt);
+      }
     } else if (sp.mode === 'flee') {
       desired = 340;
       turnRate = 7;
@@ -389,7 +420,7 @@ async function createCrawler() {
       want += angleDiff(want, away) * t * 0.85;
       if (sp.mode === 'pause' && od < personal) nextWaypoint(sp);   // shuffle aside
     }
-    if (sp.mode !== 'pause') {
+    if (sp.mode !== 'pause' && !(sp.mode === 'follow' && desired < 8)) {
       const diff = angleDiff(sp.heading, want);
       sp.heading += clamp(diff, -turnRate * dt, turnRate * dt);
       desired *= 1 - Math.min(0.75, Math.abs(diff) / Math.PI);       // slow down for sharp turns
@@ -450,3 +481,74 @@ async function createCrawler() {
   };
 }
 
+
+/* ============================================================
+   3D jack-o'-lantern on the corner of the offer card
+   (assets/pumpkin.glb from tools/build_pumpkin.py): wobbles,
+   its candlelight flickers, and it turns a little toward the mouse.
+   ============================================================ */
+const pumpkinCanvas = document.querySelector('.pumpkin-3d');
+if (pumpkinCanvas) createPumpkin(pumpkinCanvas).catch(err => console.warn('pumpkin:', err));
+
+async function createPumpkin(canvas) {
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'low-power' });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 0.85;                            // moody: deep shadows, hot glow
+  const scene = new THREE.Scene();
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  scene.environmentIntensity = 0.2;
+  const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 50);
+  camera.position.set(0, 0.35, 6.2);
+  camera.lookAt(0, 0.1, 0);
+  scene.add(new THREE.HemisphereLight(0x6a4a9a, 0x120408, 0.6));   // dark Halloween night
+  const key = new THREE.DirectionalLight(0xff9a4a, 1.6);           // warm, low key light
+  key.position.set(-3, 3, 5);
+  const rim = new THREE.DirectionalLight(0x9a6bff, 2.2);           // purple moonlight from behind
+  rim.position.set(3, 2, -4);
+  const fire = new THREE.PointLight(0xff6a10, 6, 6, 2);             // candle spill on the skin, flickers
+  fire.position.set(0, -0.2, 2.2);
+  scene.add(key, rim, fire);
+
+  const draco = new DRACOLoader().setDecoderPath(`https://cdn.jsdelivr.net/npm/three@${THREE_VERSION}/examples/jsm/libs/draco/gltf/`);
+  const gltf = await new GLTFLoader().setDRACOLoader(draco).loadAsync('assets/pumpkin.glb');
+  const pumpkin = gltf.scene;
+  let glow = null;
+  pumpkin.traverse(o => { if (o.isMesh && o.material.name === 'Glow') glow = o.material; });
+  const pivot = new THREE.Group();
+  pivot.add(pumpkin);
+  scene.add(pivot);
+
+  const size = () => { const r = canvas.getBoundingClientRect(); renderer.setSize(r.width, r.height, false); };
+  size();
+  addEventListener('resize', size);
+  canvas.closest('.plaque')?.classList.add('has-3d-pumpkin');
+
+  const mouse = { x: 0, y: 0 };
+  addEventListener('pointermove', e => { mouse.x = e.clientX / innerWidth - 0.5; mouse.y = e.clientY / innerHeight - 0.5; }, { passive: true });
+
+  const clock = new THREE.Clock();
+  let T = 0, flick = 1, onScreen = true;
+  new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; }).observe(canvas);
+  renderer.setAnimationLoop(() => {
+    const dt = Math.min(clock.getDelta(), 1 / 20);
+    if (!onScreen) return;
+    T += dt;
+    // wobble + a glance toward the cursor
+    // slow, heavy wobble + a glance toward the cursor
+    pivot.rotation.set(
+      0.12 + mouse.y * 0.3 + Math.sin(T * 0.8) * 0.05,
+      -0.3 + mouse.x * 0.6 + Math.sin(T * 0.55) * 0.12,
+      -0.2 + Math.sin(T * 0.9) * 0.1,
+    );
+    pivot.position.y = Math.sin(T * 0.9) * 0.06;
+    // an aggressive candle: hot flares and sudden dips
+    if (Math.random() < 0.1) flick = Math.random() < 0.15 ? 0.35 : 0.9 + Math.random() * 0.7;
+    if (glow) glow.emissiveIntensity += (flick * 9 - glow.emissiveIntensity) * Math.min(1, dt * 16);
+    fire.intensity += (flick * 7 - fire.intensity) * Math.min(1, dt * 16);
+    canvas.style.setProperty('--flare', flick.toFixed(2));
+    renderer.render(scene, camera);
+  });
+}

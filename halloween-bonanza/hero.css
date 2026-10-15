@@ -1,0 +1,505 @@
+/* ============================================================
+   Halloween Bonanza — hero
+   The stage uses the background image's own 2000 x 1006 grid:
+   calc(N * var(--u)) == N image pixels.
+   ============================================================ */
+
+:root {
+  --ink: #1d0b2c;
+  --ink-2: #2e1244;
+  --cream-1: #fffaf2;
+  --cream-2: #f6dccb;
+  --cream-3: #e3b3a0;
+  --gold-1: #fff6b8;
+  --gold-2: #ffd23a;
+  --gold-3: #ff9a0a;
+  --gold-4: #e45c00;
+  --red-1: #ff8a8a;
+  --red-2: #ff2b2b;
+  --red-3: #c8000f;
+  --blue: #2350ff;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #07040d;
+  overflow-x: hidden;
+  font-family: "Inter", Arial, sans-serif;
+}
+
+/* ---------- 3D logo-style text ----------------------------------
+   The element itself paints outline + extrusion (dark),
+   ::after paints the textured face on top.                       */
+.t3d {
+  position: relative;
+  display: inline-block;
+  font-family: "Inter", "Arial Black", sans-serif;
+  font-weight: 900;
+  line-height: .95;
+  letter-spacing: -.025em;
+  color: var(--ink);
+  -webkit-text-stroke: .13em var(--ink);
+  paint-order: stroke fill;
+  text-shadow:
+    .012em .02em 0 var(--ink),  .024em .04em 0 var(--ink),
+    .036em .06em 0 var(--ink),  .048em .08em 0 var(--ink-2),
+    .06em .10em 0 var(--ink-2), .07em .12em 0 #12061c,
+    .08em .16em .12em rgba(0,0,0,.65);
+  white-space: nowrap;
+}
+.t3d::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+  color: transparent;
+  -webkit-background-clip: text;
+          background-clip: text;
+}
+
+/* cracked cream face — like "BIG BASS" */
+.cream::after {
+  background-image:
+    /* crack veins */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='turbulence' baseFrequency='.018' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .2 0 0 0 0 .22 -14 0 0 0 1.25'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23c)'/%3E%3C/svg%3E"),
+    /* stone mottling */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.03' numOctaves='3' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 .78 0 0 0 0 .5 0 0 0 0 .45 -2.4 0 0 0 1.25'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    linear-gradient(180deg, var(--cream-1) 0%, var(--cream-1) 30%, var(--cream-2) 62%, var(--cream-3) 100%);
+  background-size: .9em .9em, 1.4em 1.4em, 100% 100%;
+}
+
+/* molten gold face — like "HALLOWEEN 2" */
+.gold::after {
+  background-image:
+    linear-gradient(180deg, rgba(255,255,255,.55) 0 18%, transparent 30%),
+    linear-gradient(180deg, var(--gold-1) 0%, var(--gold-2) 38%, var(--gold-3) 68%, var(--gold-4) 100%);
+}
+.gold {
+  text-shadow:
+    .012em .02em 0 var(--ink),  .024em .04em 0 var(--ink),
+    .036em .06em 0 var(--ink),  .048em .08em 0 var(--ink-2),
+    .06em .10em 0 var(--ink-2), .07em .12em 0 #12061c,
+    .08em .16em .12em rgba(0,0,0,.65),
+    0 0 .45em rgba(255,140,0,.45);
+}
+
+/* red face for the promo code */
+.red::after {
+  background-image:
+    linear-gradient(180deg, rgba(255,255,255,.5) 0 16%, transparent 30%),
+    linear-gradient(180deg, var(--red-1) 0%, var(--red-2) 45%, var(--red-3) 100%);
+}
+.red { text-shadow:
+    .012em .02em 0 var(--ink), .024em .04em 0 var(--ink), .036em .06em 0 var(--ink),
+    .048em .08em 0 var(--ink-2), .06em .1em 0 #12061c, .08em .14em .12em rgba(0,0,0,.6),
+    0 0 .5em rgba(255,40,40,.55); }
+
+/* ============================================================
+   STAGE
+   ============================================================ */
+.stage {
+  --u: calc(100cqw / 2000);
+  container-type: inline-size;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2000 / 1006;
+  background: url("assets/bg.webp") center / 100% 100% no-repeat;
+  overflow: hidden;
+  isolation: isolate;
+}
+.stage > * { position: absolute; }
+.art { display: none; }
+
+/* ---------- living pumpkins: flickering candle light inside, light spilling on the ground ---------- */
+.pk-light {
+  left: calc(var(--x) * var(--u));
+  top: calc(var(--y) * var(--u));
+  width: calc(var(--s) * var(--u));
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255,210,90,.75), rgba(255,130,20,.35) 45%, transparent 75%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: candle var(--d, 2.6s) steps(1) infinite, sway 3.8s ease-in-out infinite;
+  z-index: 1;
+}
+.pk-light::after {                         /* warm pool of light on the ground */
+  content: "";
+  position: absolute;
+  left: -60%;
+  right: -60%;
+  top: 70%;
+  height: 55%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255,120,20,.35), transparent);
+  filter: blur(calc(6 * var(--u)));
+  animation: candle var(--d, 2.6s) .4s steps(1) infinite;
+}
+.pk1 { --x: 122; --y: 772; --s: 230; --d: 2.3s; }
+.pk2 { --x: 996; --y: 818; --s: 200; --d: 2.9s; }
+.pk3 { --x: 795; --y: 742; --s: 90;  --d: 2.1s; }   /* small pumpkin behind the logo */
+
+/* drifting ground fog */
+.ground-fog {
+  left: -10%;
+  right: -10%;
+  bottom: 0;
+  height: 26%;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='300'%3E%3Cfilter id='f' x='0' y='0' width='1' height='1'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.005 .02' numOctaves='3' seed='5' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .7 0 0 0 0 .6 0 0 0 0 .95 0 0 0 1.4 -.55'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E") 0 100% / 800px 100% repeat-x;
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 55%);
+          mask-image: linear-gradient(180deg, transparent, #000 55%);
+  opacity: .28;
+  animation: fog-drift 50s linear infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ---------- zombie hands (WebGL) + their dirt mounds ---------- */
+.hands-canvas { inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; }
+.mound {
+  left: calc(var(--x) * var(--u));
+  top: calc(var(--y) * var(--u));
+  width: calc(150 * var(--u));
+  height: calc(38 * var(--u));
+  translate: -50% -50%;
+  border-radius: 50%;
+  background:
+    radial-gradient(closest-side, rgba(30,16,20,.95), rgba(40,22,26,.75) 60%, transparent),
+    radial-gradient(40% 50% at 30% 40%, rgba(90,50,40,.6), transparent);
+  filter: blur(calc(1.5 * var(--u)));
+  z-index: 4;
+  pointer-events: none;
+}
+.mound i {                                   /* dirt clods thrown up as the hand breaks out */
+  position: absolute;
+  left: calc(50% + var(--dx) * var(--u));
+  top: 40%;
+  width: calc(var(--sz, 9) * var(--u));
+  aspect-ratio: 1;
+  border-radius: 40%;
+  background: #3a2420;
+  opacity: 0;
+}
+.mound.burst i { animation: clod 1s cubic-bezier(.2,.7,.4,1) forwards; }
+.mound i:nth-child(1) { --dx: -40; --tx: -70; --ty: -90; }
+.mound i:nth-child(2) { --dx: -15; --tx: -25; --ty: -130; --sz: 7; }
+.mound i:nth-child(3) { --dx: 10;  --tx: 20;  --ty: -110; --sz: 11; }
+.mound i:nth-child(4) { --dx: 35;  --tx: 75;  --ty: -80; }
+.mound i:nth-child(5) { --dx: 0;   --tx: -5;  --ty: -150; --sz: 6; }
+
+/* ============================================================
+   OFFER (3D CSS)
+   ============================================================ */
+.offer-top, .offer-ground {
+  left: calc(1130 * var(--u));
+  width: calc(760 * var(--u));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  z-index: 5;
+}
+.offer-top { top: calc(100 * var(--u)); }
+/* bottom group sits on the graveyard ground line (~y 905 in the image) */
+.offer-ground { top: calc(690 * var(--u)); }
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: calc(20 * var(--u));
+  color: var(--gold-2);
+  font-weight: 800;
+  font-size: calc(28 * var(--u));
+  letter-spacing: .03em;
+  white-space: nowrap;
+  text-shadow: 0 0 .5em rgba(255,170,0,.55), 0 .08em .1em #000;
+  animation: drop-in .9s .1s cubic-bezier(.2,.9,.3,1.2) both;
+}
+.kicker::before, .kicker::after {
+  content: "";
+  width: calc(100 * var(--u));
+  height: calc(9 * var(--u));
+  border-block: calc(2 * var(--u)) solid #7bdc6a;
+  filter: drop-shadow(0 0 .3em #6fd35e);
+  opacity: .85;
+}
+.headline {
+  margin-top: calc(10 * var(--u));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: calc(74 * var(--u));
+  transform: rotate(-2deg);
+  animation: drop-in 1s .2s cubic-bezier(.2,.9,.3,1.2) both;
+}
+.headline .t3d + .t3d { margin-top: calc(4 * var(--u)); }
+
+/* the 431 FREE SPINS card: a tilted slab of graveyard moss */
+.spin-wrap {
+  position: relative;
+  width: calc(600 * var(--u));
+  perspective: calc(1100 * var(--u));
+  perspective-origin: 50% 0;
+  animation: card-in 1.1s .45s cubic-bezier(.2,.9,.3,1.2) both;
+}
+.spin-card {
+  position: relative;
+  padding: calc(16 * var(--u)) calc(24 * var(--u)) calc(22 * var(--u));
+  border-radius: calc(22 * var(--u));
+  background:
+    radial-gradient(80% 70% at 50% 0%, rgba(140,230,110,.22), transparent 70%),
+    radial-gradient(90% 60% at 50% 120%, rgba(255,120,20,.25), transparent 60%),
+    linear-gradient(170deg, #22422a 0%, #142a1c 55%, #0c1a12 100%);
+  border: calc(3 * var(--u)) solid #6fbf5c;
+  box-shadow:
+    inset 0 calc(2 * var(--u)) 0 rgba(220,255,200,.18),
+    inset 0 0 calc(30 * var(--u)) rgba(0,0,0,.55),
+    0 0 calc(30 * var(--u)) rgba(110,210,90,.35),
+    calc(6 * var(--u)) calc(8 * var(--u)) 0 #0b170f,
+    calc(12 * var(--u)) calc(16 * var(--u)) 0 #070f0a,
+    calc(20 * var(--u)) calc(30 * var(--u)) calc(40 * var(--u)) rgba(0,0,0,.7);
+  border-radius: calc(90 * var(--u)) calc(90 * var(--u)) calc(10 * var(--u)) calc(10 * var(--u));   /* gravestone top */
+  transform-origin: 50% 100%;                /* hinged on the ground */
+  transform: rotateX(14deg);
+  transform-style: preserve-3d;
+  overflow: hidden;
+  animation: slab-sway 7s 2s ease-in-out infinite;
+}
+.spin-card { padding-top: calc(26 * var(--u)); }
+/* the slab's foot: dirt mound + contact shadow on the ground */
+.slab-base {
+  position: absolute;
+  left: -6%;
+  right: -6%;
+  bottom: calc(-18 * var(--u));
+  height: calc(44 * var(--u));
+  border-radius: 50%;
+  background:
+    radial-gradient(closest-side, rgba(10,4,12,.95), rgba(25,12,20,.7) 55%, transparent),
+    radial-gradient(30% 60% at 20% 40%, rgba(70,40,30,.6), transparent),
+    radial-gradient(30% 60% at 80% 50%, rgba(70,40,30,.5), transparent);
+  filter: blur(calc(2 * var(--u)));
+  z-index: -1;
+}
+.spin-card::before {                         /* graveyard silhouettes along the bottom */
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 45%;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 120' preserveAspectRatio='none'%3E%3Cg fill='%23081109'%3E%3Cpath d='M0 120V96Q80 80 160 92T320 88T480 94T600 86V120Z'/%3E%3Cpath d='M30 120V60l4-10 3 12 6-18 2 16 7-8-2 18 3 50zM66 120V40c0-3 2-6 6-8l-4-10 9 9 2-14 3 16 8-6-6 12v81z'/%3E%3Cpath d='M540 120V44l-8-12 10 8 4-16 3 18 9-10-5 14 4 74zM506 120v-30h10v-10h6v10h10v6h-10v24z'/%3E%3Crect x='120' y='86' width='18' height='24' rx='9'/%3E%3Crect x='455' y='82' width='22' height='28' rx='11'/%3E%3C/g%3E%3C/svg%3E") 0 100% / 100% 100% no-repeat;
+  opacity: .9;
+  pointer-events: none;
+}
+.spin-card::after {                          /* slow green shimmer */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 35%, rgba(190,255,170,.16) 50%, transparent 65%) 150% 0 / 300% 100% no-repeat;
+  animation: shimmer 5s 2.5s ease-in-out infinite;
+  pointer-events: none;
+}
+.spins {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(22 * var(--u));
+}
+.num { font-size: calc(150 * var(--u)); line-height: .8; letter-spacing: -.04em; }
+.fs { display: flex; flex-direction: column; align-items: flex-start; font-size: calc(60 * var(--u)); }
+.fs .t3d + .t3d { margin-top: calc(2 * var(--u)); }
+.spin-sub {
+  position: relative;
+  z-index: 1;
+  margin-top: calc(12 * var(--u));
+  color: #fff;
+  font-weight: 800;
+  font-size: calc(23 * var(--u));
+  line-height: 1.3;
+  text-shadow: 0 .08em .1em #000, 0 0 .5em rgba(0,0,0,.8);
+}
+.spin-sub b { color: var(--gold-2); }
+
+/* 10€ | 5€ */
+.bonus {
+  margin-top: calc(22 * var(--u));
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: calc(600 * var(--u));
+  transform: perspective(calc(900 * var(--u))) rotateX(12deg);
+  animation: rise-in .9s .7s cubic-bezier(.2,.9,.3,1.2) both;
+}
+.bonus .cell { display: flex; flex-direction: column; align-items: center; }
+.bonus .cell + .cell { border-left: calc(2 * var(--u)) solid rgba(255,255,255,.3); }
+.amt { font-size: calc(92 * var(--u)); }
+.lbl {
+  margin-top: calc(10 * var(--u));
+  color: #fff;
+  font-weight: 800;
+  font-size: calc(24 * var(--u));
+  line-height: 1.15;
+  text-shadow: 0 .08em .1em #000;
+}
+
+/* registration code */
+.code {
+  margin-top: calc(10 * var(--u));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: rise-in .9s .85s cubic-bezier(.2,.9,.3,1.2) both;
+}
+.code small { color: #fff; font-weight: 600; font-size: calc(21 * var(--u)); text-shadow: 0 1px 2px #000; }
+.code .t3d {
+  margin-top: calc(6 * var(--u));
+  font-size: calc(66 * var(--u));
+  letter-spacing: .01em;
+  animation: code-pulse 2.4s 2s ease-in-out infinite;
+}
+.note {
+  margin-top: calc(10 * var(--u));
+  color: #fff;
+  font-weight: 500;
+  font-size: calc(20 * var(--u));
+  line-height: 1.35;
+  text-shadow: 0 1px 3px #000;
+}
+
+/* blue primary CTA */
+.cta {
+  position: relative;
+  margin-top: calc(26 * var(--u));
+  width: calc(500 * var(--u));
+  height: calc(64 * var(--u));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(16 * var(--u));
+  border-radius: calc(14 * var(--u));
+  border: calc(2 * var(--u)) solid #0c1c6e;
+  background:
+    radial-gradient(60% 120% at 50% -20%, rgba(210,225,255,.45), transparent 60%),
+    linear-gradient(180deg, #5b80ff 0%, var(--blue) 48%, #1435c4 100%);
+  color: #fff;
+  font-weight: 900;
+  font-size: calc(30 * var(--u));
+  text-decoration: none;
+  text-shadow: 0 calc(2 * var(--u)) 0 rgba(5,15,80,.55);
+  box-shadow:
+    inset 0 calc(-5 * var(--u)) calc(8 * var(--u)) rgba(5,20,110,.5),
+    0 calc(6 * var(--u)) 0 #0d2391,
+    0 calc(12 * var(--u)) calc(20 * var(--u)) rgba(0,0,0,.6),
+    0 0 calc(28 * var(--u)) rgba(60,110,255,.65);
+  transition: transform .15s, filter .15s;
+  animation: rise-in .9s 1s cubic-bezier(.2,.9,.3,1.2) both;
+  overflow: hidden;
+}
+.cta b { font-size: 1.3em; line-height: 0; transition: translate .2s; }
+.cta::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,.5) 50%, transparent 60%) 150% 0 / 300% 100% no-repeat;
+  animation: shimmer 3.2s 3s ease-in-out infinite;
+}
+.cta:hover { filter: brightness(1.1); }
+.cta:hover b { translate: calc(5 * var(--u)) 0; }
+.cta:active { transform: translateY(calc(4 * var(--u))); }
+.cta:focus-visible { outline: calc(4 * var(--u)) solid var(--gold-2); outline-offset: calc(5 * var(--u)); }
+.tnc-link {
+  margin-top: calc(12 * var(--u));
+  color: rgba(255,255,255,.85);
+  font-size: calc(18 * var(--u));
+  text-shadow: 0 1px 2px #000;
+}
+
+/* ============================================================
+   KEYFRAMES
+   ============================================================ */
+@keyframes drop-in  { from { opacity: 0; translate: 0 -30%; } to { opacity: 1; translate: 0 0; } }
+@keyframes rise-in  { from { opacity: 0; translate: 0 30%; } to { opacity: 1; translate: 0 0; } }
+@keyframes card-in  { from { opacity: 0; transform: translateY(20%) scale(.85); } to { opacity: 1; transform: none; } }
+@keyframes slab-sway { 50% { transform: rotateX(11deg) rotateZ(-.6deg); } }
+@keyframes shimmer  { 0%, 55% { background-position: 150% 0; } 100% { background-position: -50% 0; } }
+@keyframes cta-pulse { 50% { box-shadow: inset 0 calc(-5 * var(--u)) calc(8 * var(--u)) rgba(5,20,110,.5), 0 calc(6 * var(--u)) 0 #0d2391, 0 calc(12 * var(--u)) calc(20 * var(--u)) rgba(0,0,0,.6), 0 0 calc(55 * var(--u)) rgba(80,130,255,.95); } }
+@keyframes code-pulse { 50% { scale: 1.06; } }
+@keyframes candle {
+  0%, 100% { opacity: 1; }
+  12% { opacity: .7; } 18% { opacity: .95; } 41% { opacity: .62; } 46% { opacity: 1; }
+  63% { opacity: .82; } 71% { opacity: .55; } 76% { opacity: .95; } 88% { opacity: .75; }
+}
+@keyframes sway { 50% { translate: calc(-50% + 3 * var(--u)) calc(-50% - 2 * var(--u)); } }
+@keyframes fog-drift { to { background-position: -800px 100%; } }
+@keyframes clod {
+  0%   { opacity: 0; transform: translate(0, 0); }
+  10%  { opacity: 1; }
+  55%  { transform: translate(calc(var(--tx) * .6 * var(--u)), calc(var(--ty) * var(--u))) rotate(120deg); }
+  100% { opacity: 0; transform: translate(calc(var(--tx) * var(--u)), calc(10 * var(--u))) rotate(260deg); }
+}
+
+/* ============================================================
+   PHONE: picture on top, offer stacked underneath
+   ============================================================ */
+@media (max-width: 760px) {
+  .stage {
+    --u: calc(min(100cqw, 600px) / 760);
+    aspect-ratio: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 62px 0 32px;
+    background:
+      radial-gradient(80% 30% at 50% 45%, rgba(120,60,200,.25), transparent 70%),
+      linear-gradient(180deg, #1a0d22 0%, #120a1f 55%, #07040d 100%);
+  }
+  .stage > * { position: relative; }
+  .art {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / .78;
+    background: url("assets/bg.webp") 6% 40% / auto 118% no-repeat;
+    -webkit-mask-image: linear-gradient(180deg, #000 75%, transparent);
+            mask-image: linear-gradient(180deg, #000 75%, transparent);
+  }
+  .pk-light, .ground-fog, .hands-canvas, .mound { display: none; }
+  .offer-top, .offer-ground { left: auto; top: auto; width: 100%; padding: 0 16px; }
+  .offer-top { margin-top: 2%; }
+  .offer-ground { margin-top: 26px; }
+  .kicker { font-size: max(12px, calc(26 * var(--u))); }
+  .headline { font-size: calc(80 * var(--u)); }
+  .spin-wrap { width: min(100%, calc(660 * var(--u))); }
+  .bonus { width: min(100%, calc(600 * var(--u))); }
+  .lbl, .code small, .note { font-size: max(13px, calc(24 * var(--u))); }
+  .spin-sub { font-size: max(13px, calc(24 * var(--u))); }
+  .cta { width: min(100%, calc(600 * var(--u))); height: 56px; font-size: 20px; }
+  .tnc-link { font-size: 13px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; animation-delay: 0s !important; }
+}
+
+/* toxic green face (Bonanza steps) */
+.green::after {
+  background-image:
+    linear-gradient(180deg, rgba(255,255,255,.5) 0 16%, transparent 30%),
+    linear-gradient(180deg, #e4ffb8 0%, #8ee65a 40%, #3fae36 72%, #1e7a2a 100%);
+}
+.green { text-shadow:
+    .012em .02em 0 var(--ink), .024em .04em 0 var(--ink), .036em .06em 0 var(--ink),
+    .048em .08em 0 var(--ink-2), .06em .1em 0 #12061c, .07em .12em 0 #12061c,
+    .08em .16em .12em rgba(0,0,0,.65), 0 0 .45em rgba(90,220,70,.45); }
+
+/* promo code sits right on top of the button; the slab stands alone on the ground */
+.offer-top .code { margin-top: calc(10 * var(--u)); }
+.offer-top .code .t3d { font-size: calc(56 * var(--u)); }
+.offer-top .cta { margin-top: calc(14 * var(--u)); }
+.offer-top .note { margin-top: calc(10 * var(--u)); font-size: calc(18 * var(--u)); }
+.offer-ground .tnc-link { margin-top: calc(26 * var(--u)); }
+
+/* the picture's own branches drawn again in front of the gravestone */
+.fg-branches { inset: 0; width: 100%; height: 100%; z-index: 6; pointer-events: none; }
+@media (max-width: 760px) { .fg-branches { display: none; } }

@@ -34,6 +34,7 @@
 
 <main>
 <div class="hero" id="top">
+<div class="hero-frame">
 <!-- Stage is laid out in the image's own 2000 x 1116 px grid (1 design px = var(--u)) -->
 <section class="banner" aria-label="Big Bass Halloween 2 – 131 Free Spins">
 
@@ -172,6 +173,7 @@
       <svg class="web web-tr" viewBox="0 0 100 100" aria-hidden="true"><use href="#web"/></svg>
       <svg class="web web-bl" viewBox="0 0 100 100" aria-hidden="true"><use href="#web"/></svg>
       <svg class="pumpkin" viewBox="0 0 100 92" aria-hidden="true"><use href="#pumpkin"/></svg>
+      <canvas class="pumpkin-3d" aria-hidden="true"></canvas>   <!-- 3D jack-o'-lantern (tools/build_pumpkin.py); the SVG above is the fallback -->
       <div class="bonus">
         <div class="cell">
           <span class="t3d gold amt" data-text="10€">10€</span>
@@ -196,6 +198,7 @@
     <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
   </div>
 </section>
+</div>
 </div>
 
 <!-- ============ STEPS ============ -->
