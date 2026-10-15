@@ -1,5 +1,6 @@
 /* Shade the scenery into the page while keeping offers above the fade. */
-.hero-frame > .stage::after {
+.hero-frame > .stage::after,
+.hero-frame > .banner::after {
   content: "";
   position: absolute;
   left: 0;

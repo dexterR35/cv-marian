@@ -1,38 +1,6 @@
 (() => {
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // The background moves behind the fixed poster; offer controls stay still.
-  const heroFrame = document.querySelector('.hero-frame');
-  const parallaxDesktop = matchMedia('(min-width: 761px)');
-  let parallaxX = 0;
-  let parallaxY = 0;
-  let parallaxPending = false;
-  const renderParallax = () => {
-    parallaxPending = false;
-    const active = !reduceMotion && parallaxDesktop.matches;
-    heroFrame.style.setProperty('--parallax-x', `${active ? parallaxX : 0}px`);
-    heroFrame.style.setProperty('--parallax-y', `${active ? Math.min(scrollY * .12, 80) + parallaxY : 0}px`);
-  };
-  const queueParallax = () => {
-    if (parallaxPending) return;
-    parallaxPending = true;
-    requestAnimationFrame(renderParallax);
-  };
-  parallaxDesktop.addEventListener('change', queueParallax);
-  if (!reduceMotion && matchMedia('(pointer: fine)').matches) {
-    heroFrame.addEventListener('pointermove', event => {
-      const rect = heroFrame.getBoundingClientRect();
-      parallaxX = -20 * ((event.clientX - rect.left) / rect.width - .5);
-      parallaxY = -12 * ((event.clientY - rect.top) / rect.height - .5);
-      queueParallax();
-    });
-    heroFrame.addEventListener('pointerleave', () => {
-      parallaxX = 0;
-      parallaxY = 0;
-      queueParallax();
-    });
-  }
-
   // ---- bats: inline the drawing so every wing can flap on its own
   // (animations inside <use> clones are not reliable across browsers).
   const batSymbol = document.getElementById('bat');
@@ -52,7 +20,6 @@
     if (y < lastY - 4) header.classList.remove('hide');
     header.style.setProperty('--p', max > 0 ? (y / max).toFixed(4) : 0);
     lastY = y;
-    queueParallax();
     ticking = false;
   };
   addEventListener('scroll', () => {

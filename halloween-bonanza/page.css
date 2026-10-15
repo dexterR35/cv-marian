@@ -8,7 +8,7 @@
   --bg-1: #120a1f;
   --bg-2: #1d0e2e;
   --page-end: #0e0718;      /* steps fade into this; T&C and the footer continue it */
-  --orange: #62d14f;          /* Bonanza: graveyard green accents (buttons stay blue) */
+  --orange: #62d14f;          /* Bonanza: graveyard green accents (red buttons) */
   --orange-deep: #e05400;
   --purple: #22c39a;
   --text: #f6ecff;
@@ -38,20 +38,20 @@ a { color: inherit; }
   height: 56px;
   padding: 0 34px;
   border-radius: 999px;
-  border: 2px solid #0c1c6e;
+  border: 2px solid #3d0006;
   background:
-    radial-gradient(60% 120% at 50% -20%, rgba(210,225,255,.45), transparent 60%),
-    linear-gradient(180deg, #5b80ff 0%, #2350ff 48%, #1435c4 100%);
+    radial-gradient(60% 120% at 50% -20%, rgba(255,210,200,.45), transparent 60%),
+    linear-gradient(180deg, #ff4f4f 0%, #e3101f 48%, #9a0612 100%);
   color: #fff;
   font: 900 18px/1 "Inter", sans-serif;
   letter-spacing: .01em;
   text-decoration: none;
-  text-shadow: 0 1px 0 rgba(5,15,80,.55);
+  text-shadow: 0 1px 0 rgba(70,0,8,.55);
   box-shadow:
-    inset 0 -5px 8px rgba(5,20,110,.5),
-    0 5px 0 #0d2391,
+    inset 0 -5px 8px rgba(90,0,10,.5),
+    0 5px 0 #6e0410,
     0 10px 18px rgba(0,0,0,.5),
-    0 0 26px rgba(60,110,255,.55);
+    0 0 26px rgba(255,40,40,.55);
   transition: transform .18s var(--ease-out), filter .18s, box-shadow .18s;
   white-space: nowrap;
   isolation: isolate;
@@ -71,7 +71,7 @@ a { color: inherit; }
 /* header button: flat and simple, no 3D edge, shine or glow */
 .site-header a.btn-pumpkin {
   border: 0;
-  background: #2350ff;
+  background: #e3101f;
   text-shadow: none;
   box-shadow: none;
   animation: none;
@@ -81,7 +81,7 @@ a { color: inherit; }
 .site-header a.btn-pumpkin:hover { filter: brightness(1.12); }
 .site-header a.btn-pumpkin:active { transform: none; box-shadow: none; }
 .btn-pumpkin:hover b { translate: 4px -2px; }
-.btn-pumpkin:active { transform: translateY(4px); box-shadow: inset 0 -5px 8px rgba(5,20,110,.5), 0 1px 0 #0d2391; }
+.btn-pumpkin:active { transform: translateY(4px); box-shadow: inset 0 -5px 8px rgba(90,0,10,.5), 0 1px 0 #6e0410; }
 .btn-pumpkin:focus-visible { outline: 3px solid var(--purple); outline-offset: 4px; }
 
 .btn-lg { height: 68px; padding: 0 48px; font-size: 22px; }
@@ -92,12 +92,12 @@ a { color: inherit; }
   right: 12%;
   top: calc(100% + 2px);
   height: 30px;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 34' preserveAspectRatio='none'%3E%3Cg fill='%231a3fd6'%3E%3Crect width='300' height='4'/%3E%3Crect x='24' width='8' height='15' rx='4'/%3E%3Ccircle cx='28' cy='15' r='5.5'/%3E%3Crect x='70' width='6' height='8' rx='3'/%3E%3Ccircle cx='73' cy='8' r='4'/%3E%3Crect x='128' width='9' height='22' rx='4.5'/%3E%3Ccircle cx='132.5' cy='23' r='6'/%3E%3Crect x='190' width='6' height='10' rx='3'/%3E%3Ccircle cx='193' cy='10' r='4.2'/%3E%3Crect x='246' width='8' height='17' rx='4'/%3E%3Ccircle cx='250' cy='17' r='5.5'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 34' preserveAspectRatio='none'%3E%3Cg fill='%23a80714'%3E%3Crect width='300' height='4'/%3E%3Crect x='24' width='8' height='15' rx='4'/%3E%3Ccircle cx='28' cy='15' r='5.5'/%3E%3Crect x='70' width='6' height='8' rx='3'/%3E%3Ccircle cx='73' cy='8' r='4'/%3E%3Crect x='128' width='9' height='22' rx='4.5'/%3E%3Ccircle cx='132.5' cy='23' r='6'/%3E%3Crect x='190' width='6' height='10' rx='3'/%3E%3Ccircle cx='193' cy='10' r='4.2'/%3E%3Crect x='246' width='8' height='17' rx='4'/%3E%3Ccircle cx='250' cy='17' r='5.5'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
   transform-origin: 50% 0;
   animation: drip 3.5s ease-in-out infinite;
   pointer-events: none;
 }
-.btn-sm { height: 40px; padding: 0 20px; font-size: 14px; box-shadow: inset 0 -4px 6px rgba(5,20,110,.5), 0 3px 0 #0d2391, 0 0 18px rgba(60,110,255,.45); }
+.btn-sm { height: 40px; padding: 0 20px; font-size: 14px; box-shadow: inset 0 -4px 6px rgba(90,0,10,.5), 0 3px 0 #6e0410, 0 0 18px rgba(255,40,40,.45); }
 
 /* ---------- shared: page bats (flap via .wing from banner.css symbol) ---------- */
 .pbat {

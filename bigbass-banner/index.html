@@ -9,7 +9,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="banner.css">
 <link rel="stylesheet" href="page.css">
-<link rel="stylesheet" href="../halloween-poster/poster.css">
+<link rel="stylesheet" href="../halloween-poster/fullscreen.css">
+<link rel="stylesheet" href="layout.css">
 <link rel="stylesheet" href="../halloween-poster/transition.css">
 <script>
   document.documentElement.classList.add('js', 'is-loading');
@@ -96,10 +97,10 @@
 <main>
 <div class="hero" id="top">
 <div class="hero-frame">
-<div class="poster-backdrop" aria-hidden="true"></div>
-<div class="poster-shadow" aria-hidden="true"></div>
 <!-- Stage is laid out in the image's own 2000 x 1116 px grid (1 design px = var(--u)) -->
 <section class="banner" aria-label="Big Bass Halloween 2 – 131 Free Spins">
+  <div class="sign-cover" aria-hidden="true"></div>
+<div class="offer-plane">
 
   <!-- shared Halloween drawings -->
   <svg class="defs" width="0" height="0" aria-hidden="true">
@@ -230,7 +231,6 @@
   </svg>
 
   <!-- 6. 3D offer plaque – sits exactly over the old "SPECIAL OFFER" sign -->
-  <div class="sign-cover" aria-hidden="true"></div>
   <aside class="plaque-wrap">
     <div class="plaque">
       <svg class="web web-tr" viewBox="0 0 100 100" aria-hidden="true"><use href="#web"/></svg>
@@ -260,6 +260,8 @@
   <div class="embers" aria-hidden="true">
     <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
   </div>
+
+</div>
 </section>
 </div>
 </div>

@@ -92,7 +92,7 @@ function giveGhostGrin(root) {
       const y = points.getY(i);
       if (y < 1.335) {
         const side = clamp(x / .1, -1, 1);
-        points.setXY(i, x * 2.8, 1.12 + (y - 1.18) * .32 + .13 * side * side);
+        points.setXY(i, x * (greek ? 2.8 : 3.5), 1.12 + (y - 1.18) * .32 + .13 * side * side);
       } else {
         const side = Math.sign(x);
         points.setY(i, 1.5 + (y - 1.5) * .52 + side * (x - side * .2) * .45);
@@ -104,6 +104,31 @@ function giveGhostGrin(root) {
     mesh.geometry.computeBoundingSphere();
   });
   root.userData.devilishSmile = true;
+}
+
+function removeGhostArms(root) {
+  root.traverse(mesh => {
+    if (!mesh.isSkinnedMesh || mesh.material.name !== 'Sheet') return;
+    const arms = new Set(mesh.skeleton.bones.flatMap((bone, index) => /^arm_/.test(bone.name) ? [index] : []));
+    const geometry = mesh.geometry.clone();
+    const joints = geometry.attributes.skinIndex;
+    const weights = geometry.attributes.skinWeight;
+    const belongsToArm = vertex => {
+      for (let channel = 0; channel < 4; channel++) {
+        if (arms.has(joints.getComponent(vertex, channel)) && weights.getComponent(vertex, channel) > .5) return true;
+      }
+      return false;
+    };
+    const retained = [];
+    const indices = geometry.index;
+    for (let i = 0; i < indices.count; i += 3) {
+      const triangle = [indices.getX(i), indices.getX(i + 1), indices.getX(i + 2)];
+      if (!triangle.some(belongsToArm)) retained.push(...triangle);
+    }
+    geometry.setIndex(retained);
+    mesh.geometry = geometry;
+  });
+  root.userData.armless = true;
 }
 
 async function createGhosts() {
@@ -126,6 +151,7 @@ async function createGhosts() {
 
   const gltf = await loader.loadAsync(new URL('../halloween-ro/assets/ghost.glb', import.meta.url).href);
   giveGhostGrin(gltf.scene);
+  if (!greek) removeGhostArms(gltf.scene);
   const clip = gltf.animations[0];
   const MODEL_H = 2.1;
 

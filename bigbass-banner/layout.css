@@ -1,0 +1,59 @@
+/* One edge-to-edge background; scale the complete offer as a separate layer. */
+.hero-frame {
+  height: auto;
+  container-type: normal;
+}
+
+.offer-plane { display: contents; }
+
+@media (min-width: 961px) {
+  .hero-frame {
+    height: 100dvh;
+    container-type: size;
+  }
+
+  .hero-frame > .banner {
+    --bg-u: calc(max(100cqw, 100cqh * var(--ar)) / 2000);
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+    background-size: cover;
+  }
+
+  .offer-plane {
+    --u: calc(100cqw / 2000);
+    display: block;
+    container-type: inline-size;
+    isolation: isolate;
+    z-index: 5;
+    position: absolute;
+    width: min(calc((100cqh - 48px) * var(--ar)), calc(100cqw - 64px));
+    aspect-ratio: var(--ar);
+    top: 50%;
+    right: 32px;
+    transform: translateY(-50%);
+    overflow: visible;
+  }
+
+  /* Hide the artwork's original sign at its actual cover-scaled position. */
+  .sign-cover {
+    left: calc(50% + 466 * var(--bg-u));
+    top: calc(50% + 186 * var(--bg-u));
+    width: calc(474 * var(--bg-u));
+    height: calc(310 * var(--bg-u));
+    filter: blur(calc(12 * var(--bg-u)));
+    z-index: 0;
+  }
+
+  .offer-plane .plaque-wrap { z-index: 5; }
+  .offer-plane .lbl { font-size: max(11px, calc(26 * var(--u))); }
+  .offer-plane .cta { font-size: max(16px, calc(34 * var(--u))); }
+  .offer-plane .fine {
+    font-size: max(11px, calc(17 * var(--u)));
+    line-height: 1.3;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 960px) {
+  .banner { padding-top: 84px; }
+}
